@@ -3,7 +3,8 @@
 
 #include <string>
 #include "DP5Protocol.h"
-using namespace std; 
+
+using namespace std;
 
 typedef enum _CommType {
     commNone = 0,
@@ -37,21 +38,25 @@ typedef struct _DppStateType {
     unsigned long ReqProcess;
     bool HaveScopeData;
     bool ScopeAutoRearm;
-	bool ScopeOverFlow;
+    bool ScopeOverFlow;
 } DppStateType;
 
-class CParsePacket
-{
+class CParsePacket {
 public:
-	CParsePacket(void);
-	~CParsePacket(void);
-	/// DPP packet parser state indicator.
-	DppStateType DppState;
-	/// Parses DPP packet status, determines further processing.
-	void ParsePacketStatus(unsigned char P[], Packet_In *PIN);
-	/// Processes DPP return ACKS, NAKS and errors.
-	string PID2_TextToString(string strPacketSource, unsigned char PID2);
-	/// Parses incoming DPP packet, tests packet, populates packet information, sets packet state.
-	long ParsePacket(unsigned char P[], Packet_In *PIN);
+    CParsePacket(void);
+
+    ~CParsePacket(void);
+
+    /// DPP packet parser state indicator.
+    DppStateType DppState;
+
+    /// Parses DPP packet status, determines further processing.
+    void ParsePacketStatus(unsigned char P[], Packet_In *PIN);
+
+    /// Processes DPP return ACKS, NAKS and errors.
+    string PID2_TextToString(string strPacketSource, unsigned char PID2);
+
+    /// Parses incoming DPP packet, tests packet, populates packet information, sets packet state.
+    long ParsePacket(unsigned char P[], Packet_In *PIN);
 };
 
