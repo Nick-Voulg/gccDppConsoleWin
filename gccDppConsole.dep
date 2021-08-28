@@ -1,0 +1,6 @@
+DP5Protocol.o: DeviceIO/DP5Protocol.cpp DeviceIO/DP5Protocol.h
+ParsePacket.o: DeviceIO/ParsePacket.cpp DeviceIO/ParsePacket.h \
+ DeviceIO/DP5Protocol.h
+DppLibUsb.o: DeviceIO/DppLibUsb.cpp DeviceIO/DppLibUsb.h \
+ DeviceIO/libusb.h
+stringex.o: stringex.cpp stringex.h

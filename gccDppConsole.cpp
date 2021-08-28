@@ -164,20 +164,19 @@ void AcquireSpectrum()
 		cout << "\t\tEnabling MCA for spectrum data acquisition with status ." << endl;
 		chdpp.LibUsb_SendCommand(XMTPT_ENABLE_MCA_MCS);
 		Sleep(1000);
-		for(int idxSpectrum=0;idxSpectrum<MaxMCA;idxSpectrum++) {
-			//cout << "\t\tAcquiring spectrum data set " << (idxSpectrum+1) << " of " << MaxMCA << endl;
-			if (chdpp.LibUsb_SendCommand(XMTPT_SEND_SPECTRUM_STATUS)) {	// request spectrum+status
-				if (chdpp.LibUsb_ReceiveData()) {
-					bDisableMCA = true;				// we are aquiring data, disable mca when done
-					system(CLEAR_TERM);
-					chdpp.ConsoleGraph(chdpp.DP5Proto.SPECTRUM.DATA,chdpp.DP5Proto.SPECTRUM.CHANNELS,true,chdpp.DppStatusString);
-					Sleep(2000);
-				}
-			} else {
-				cout << "\t\tProblem acquiring spectrum." << endl;
-				break;
-			}
-		}
+        while(true) {
+            if (chdpp.LibUsb_SendCommand(XMTPT_SEND_LIST_MODE_DATA)) {	// request list
+                if (chdpp.LibUsb_ReceiveData()) {
+                    bDisableMCA = true;				// we are aquiring data, disable mca when done
+                    system(CLEAR_TERM);
+                    cout << int(chdpp.DP5Proto.PIN.DATA) << endl;
+                    Sleep(2000);
+                }
+            } else {
+                cout << "\t\tProblem acquiring spectrum." << endl;
+                break;
+            }
+        }
 		if (bDisableMCA) {
 			//system("Pause");
 			//cout << "\t\tSpectrum acquisition with status done. Disabling MCA." << endl;
@@ -366,7 +365,7 @@ int main(int argc, char* argv[])
 
 	system(CLEAR_TERM);
 	ReadConfigFile();
-	cout << "Press the Enter key to continue . . .";
+	cout << "Press the Enter key to continue read . . .";
 	_getch(); 
 
 	system(CLEAR_TERM);

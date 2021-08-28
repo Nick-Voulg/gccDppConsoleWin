@@ -103,6 +103,13 @@ bool CSendCommand::DP5_CMD(unsigned char Buffer[], TRANSMIT_PACKET_TYPE XmtCmd)
             POUT.PID2 = PID2_SEND_NETFINDER_READBACK;   // Request NetFinder Packet
             POUT.LEN = 0;
 			break;
+        case XMTPT_SEND_LIST_MODE_DATA:
+            POUT.PID1 = PID1_REQ_SCOPE_MISC;
+            POUT.PID2 = PID2_SEND_LIST_MODE_DATA;
+//            POUT.DATA[0] = 0xFE;
+//            POUT.DATA[1] = 0x05;
+//            is it need to checksum?
+            break;
         //case XMTPT_SEND_HARDWARE_DESCRIPTION:
 			//break;
         //case XMTPT_SEND_SCA:

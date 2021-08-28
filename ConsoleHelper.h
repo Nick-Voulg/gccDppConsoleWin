@@ -63,6 +63,8 @@ public:
 	bool ReceiveData();
 	/// Processes spectrum packets.
 	void ProcessSpectrumEx(Packet_In PIN, DppStateType DppState);
+    /// Processes list mode packets.
+    void ProcessListModeDataEx(Packet_In PIN, DppStateType DppState);
 	/// Clears configuration readback format flags. 
 	void ClearConfigReadFormatFlags();
 	/// Processes configuration packets.

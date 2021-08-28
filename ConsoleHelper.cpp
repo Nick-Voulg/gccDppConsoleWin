@@ -162,6 +162,7 @@ bool CConsoleHelper::ReceiveData()
 
 	bDataReceived = true;
 	ParsePkt.DppState.ReqProcess = ParsePkt.ParsePacket(DP5Proto.PacketIn, &DP5Proto.PIN);
+    cout << int(ParsePkt.DppState.ReqProcess) << endl;
 	switch (ParsePkt.DppState.ReqProcess) {
 		case preqProcessStatus:
 			long idxStatus;
@@ -183,16 +184,21 @@ bool CConsoleHelper::ReceiveData()
 		//case preqProcessDiagData:
 		//	ProcessDiagDataEx(DP5Proto.PIN, ParsePkt.DppState);
 		//	break;
+        case preqProcessListModeData:
+            ProcessListModeDataEx(DP5Proto.PIN, ParsePkt.DppState);
+            break;
 		case preqProcessCfgRead:
 			ProcessCfgReadEx(DP5Proto.PIN, ParsePkt.DppState);
 			break;
 		//case preqProcessAck:
 		//	ProcessAck(DP5Proto.PIN.PID2);
 		//	break;
-		//case preqProcessError:
-		//	DisplayError(DP5Proto.PIN, ParsePkt.DppState);
-		//	break;
-		default:
+//		case preqProcessError:
+//			DisplayError(DP5Proto.PIN, ParsePkt.DppState);
+//			break;
+        default:
+            cout << int(DP5Proto.PIN.PID1) << endl;
+            cout << int(DP5Proto.PIN.PID2) << endl;
 			bDataReceived = false;
 			break;
 	}
@@ -218,6 +224,12 @@ void CConsoleHelper::ProcessSpectrumEx(Packet_In PIN, DppStateType DppState)
         DP5Stat.Process_Status(&DP5Stat.m_DP5_Status);
 		DppStatusString = DP5Stat.ShowStatusValueStrings(DP5Stat.m_DP5_Status);
     }
+}
+
+//processes list mode
+void CConsoleHelper::ProcessListModeDataEx(Packet_In PIN, DppStateType DppState)
+{
+
 }
 
 void CConsoleHelper::ClearConfigReadFormatFlags()
