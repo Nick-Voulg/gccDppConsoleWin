@@ -1,10 +1,11 @@
 /** CDP5Protocol CDP5Protocol */
 #pragma once
+
 #include <math.h>
 
 enum TRANSMIT_PACKET_TYPE {
-     //REQUEST_PACKETS_TO_DP5
-	XMTPT_SEND_STATUS,
+    //REQUEST_PACKETS_TO_DP5
+    XMTPT_SEND_STATUS,
     XMTPT_SEND_SPECTRUM,
     XMTPT_SEND_CLEAR_SPECTRUM,
     XMTPT_SEND_SPECTRUM_STATUS,
@@ -19,7 +20,7 @@ enum TRANSMIT_PACKET_TYPE {
     XMTPT_SEND_SCOPE_DATA_REARM,
     XMTPT_SEND_ETHERNET_SETTINGS,
     XMTPT_SEND_DIAGNOSTIC_DATA,
-	XMTPT_SEND_NETFINDER_PACKET,
+    XMTPT_SEND_NETFINDER_PACKET,
     XMTPT_SEND_LIST_MODE_DATA,
     XMTPT_SEND_HARDWARE_DESCRIPTION,
     XMTPT_SEND_SCA,
@@ -28,7 +29,7 @@ enum TRANSMIT_PACKET_TYPE {
     XMTPT_SEND_ROI_OR_FIXED_BLOCK,
     XMTPT_PX4_STYLE_CONFIG_PACKET,
     XMTPT_SEND_CONFIG_PACKET_EX,
-	XMTPT_SEND_CONFIG_PACKET_TO_HW,
+    XMTPT_SEND_CONFIG_PACKET_TO_HW,
     XMTPT_READ_CONFIG_PACKET,
     XMTPT_READ_CONFIG_PACKET_EX,
     XMTPT_FULL_READ_CONFIG_PACKET,
@@ -68,12 +69,12 @@ enum TRANSMIT_PACKET_TYPE {
     XMTPT_SET_SERIAL_NUMBER,
     XMTPT_CLEAR_GP_COUNTER,
     XMTPT_SWITCH_SUPPLIES,
-    
+
     XMTPT_SEND_TEST_PACKET,
-	XMTPT_REQ_ACK_PACKET,
-	XMTPT_FORCE_SCOPE_TRIGGER,
-	XMTPT_READ_MCA8000D_OPTION_PA_CAL,
-	XMTPT_AU34_2_RESTART
+    XMTPT_REQ_ACK_PACKET,
+    XMTPT_FORCE_SCOPE_TRIGGER,
+    XMTPT_READ_MCA8000D_OPTION_PA_CAL,
+    XMTPT_AU34_2_RESTART
 };  //TRANSMIT_PACKET_TYPE
 
 //enum RECEIVE_PACKET_TYPE {
@@ -108,7 +109,7 @@ enum PID1_TYPE {
     PID1_RCV_SCOPE_MISC = 0x82,
     PID1_RCV_SCA = 0x83,
     PID1_VENDOR_REQ = 0xF0,
-	PID1_COMM_TEST = 0xF1,
+    PID1_COMM_TEST = 0xF1,
     PID1_ACK = 0xFF
 };  //PID1_TYPE
 
@@ -135,10 +136,10 @@ enum PID2_REQ_SCOPE_MISC_TYPE {
     PID2_SEND_ETHERNET_SETTINGS = 0x04,
     PID2_SEND_DIAGNOSTIC_DATA = 0x05,
     PID2_SEND_HARDWARE_DESCRIPTION = 0x06,
-	PID2_SEND_NETFINDER_READBACK = 0x07,
-	PID2_SEND_I2C_DATA = 0x08,
-	PID2_SEND_LIST_MODE_DATA = 0x09,
-	PID2_SEND_OPTION_PA_CALIBRATION = 0x0A
+    PID2_SEND_NETFINDER_READBACK = 0x07,
+    PID2_SEND_I2C_DATA = 0x08,
+    PID2_SEND_LIST_MODE_DATA = 0x09,
+    PID2_SEND_OPTION_PA_CALIBRATION = 0x0A
 };  //PID2_REQ_SCOPE_MISC_TYPE
 
 enum PID2_REQ_SCA_TYPE {
@@ -194,13 +195,13 @@ enum PID2_VENDOR_REQ_TYPE {
     PID2_ETHERNET_ALLOW_SHAREING = 0x20,
     PID2_ETHERNET_NO_SHARING = 0x21,
     PID2_ETHERNET_LOCK_IP = 0x22,
-	PID2_GENERIC_FPGA_WRITE = 0x89
+    PID2_GENERIC_FPGA_WRITE = 0x89
 };  //PID2_VENDOR_REQ_TYPE
 
 enum PID2_RCV_STATUS_TYPE {
     RCVPT_DP4_STYLE_STATUS = 0x01
 };  //PID2_RCV_STATUS_TYPE
-    
+
 enum PID2_RCV_SPECTRUM_TYPE {
     RCVPT_256_CHANNEL_SPECTRUM = 0x01,
     RCVPT_256_CHANNEL_SPECTRUM_STATUS = 0x02,
@@ -223,12 +224,12 @@ enum PID2_RCV_SCOPE_MISC_TYPE {
     RCVPT_ETHERNET_SETTINGS = 0x04,
     RCVPT_DIAGNOSTIC_DATA = 0x05,
     RCVPT_HARDWARE_DESCRIPTION = 0x06,
-	RCVPT_CONFIG_READBACK = 0x07,
-	RCVPT_NETFINDER_READBACK = 0x08,
-	RCVPT_I2C_DATA = 0x09,
-	RCVPT_LIST_MODE_DATA = 0x0A,
-	RCVPT_LIST_MODE_DATA_FIFO_FULL = 0x0B,
-	RCVPT_OPTION_PA_CALIBRATION = 0x0C
+    RCVPT_CONFIG_READBACK = 0x07,
+    RCVPT_NETFINDER_READBACK = 0x08,
+    RCVPT_I2C_DATA = 0x09,
+    RCVPT_LIST_MODE_DATA = 0x0A,
+    RCVPT_LIST_MODE_DATA_FIFO_FULL = 0x0B,
+    RCVPT_OPTION_PA_CALIBRATION = 0x0C
 };  //PID2_REQ_SCOPE_MISC_TYPE
 
 enum PID2_RCV_SCA_TYPE {
@@ -249,11 +250,11 @@ enum PID2_ACK_TYPE {  //PID1_ACK, PID2_ACK_TYPE)
     PID2_ACK_SCOPE_DATA_NOT_AVAIL = 0x0A,
     PID2_ACK_PC5_NOT_PRESENT = 0x0B,
     PID2_ACK_OK_ETHERNET_SHARE_REQ = 0x0C,
-	PID2_ACK_ETHERNET_BUSY = 0x0D,
-	PID2_ACK_I2C_ERROR = 0x0E,
-	PID2_ACK_OK_FPGA_UPLOAD_ADDR = 0x0F,
-	PID2_ACK_FEATURE_NOT_FPGA_SUPPORTED = 0x10,
-	PID2_ACK_CAL_DATA_NOT_PRESENT = 0x11
+    PID2_ACK_ETHERNET_BUSY = 0x0D,
+    PID2_ACK_I2C_ERROR = 0x0E,
+    PID2_ACK_OK_FPGA_UPLOAD_ADDR = 0x0F,
+    PID2_ACK_FEATURE_NOT_FPGA_SUPPORTED = 0x10,
+    PID2_ACK_CAL_DATA_NOT_PRESENT = 0x11
 };  //PID2_ACK_TYPE
 
 //#define PID1_ACK 0xFF
@@ -291,62 +292,62 @@ struct Packet_Out {
     unsigned char DATA[514];
 };
 
-#define MAX_BUFFER_DATA		8192
-#define MAX_SCOPE_DATA		2048
+#define MAX_BUFFER_DATA        8192
+#define MAX_SCOPE_DATA        2048
 #define USB_DiagDataDelayMS 2500
 
 struct Spec {
-	long DATA[MAX_BUFFER_DATA];   // this keeps total of static data under 64K VB limit
-	short CHANNELS;
+    long DATA[MAX_BUFFER_DATA];   // this keeps total of static data under 64K VB limit
+    short CHANNELS;
 };
 
-class CDP5Protocol
-{
+class CDP5Protocol {
 public:
-	CDP5Protocol(void);
-	~CDP5Protocol(void);
+    CDP5Protocol(void);
 
-	/// Inidicates the incoming packet type;
-	short InPacketType;
-	// Incoming packet buffer. (24648==largest possible IN packet.)
-	unsigned char PacketIn[24648]; 
+    ~CDP5Protocol(void);
 
-	/// Tracks the RS232 number of bytes in the input buffer.
-	long RS232BytesInBuffer;
-	/// RS232 receive buffer threshold.
-	long RS232_RThreshold;
-	/// RS232 header received indicator.
-	bool RS232HeaderReceived;
-	/// Points to the current incoming data save position in the input buffer.
-	short RS232PacketPtr;
+    /// Inidicates the incoming packet type;
+    short InPacketType;
+    // Incoming packet buffer. (24648==largest possible IN packet.)
+    unsigned char PacketIn[24648];
 
-	/// Auto plot scale indicator.
-	bool ScaleAuto;
-	/// Oscilloscope data buffer.
-	unsigned char Scope[2048];
-	/// Miscellaneous data buffer.
-	unsigned char MiscData[512];
-	/// Communications error indicator.
-	bool CommError;
-	/// Output data buffer.
-	unsigned char BufferOUT[520];
-	/// Spectrum data buffer.
-	Spec SPECTRUM;
-	/// Packet input buffer.
-	Packet_In PIN;
+    /// Tracks the RS232 number of bytes in the input buffer.
+    long RS232BytesInBuffer;
+    /// RS232 receive buffer threshold.
+    long RS232_RThreshold;
+    /// RS232 header received indicator.
+    bool RS232HeaderReceived;
+    /// Points to the current incoming data save position in the input buffer.
+    short RS232PacketPtr;
 
-	/// ACK received indicator.
-	bool ACK_Received;
-	/// Packet received indicator.
-	bool Packet_Received;
-	/// Communication timeout error indicator flag.
-	bool Timeout_flag;
+    /// Auto plot scale indicator.
+    bool ScaleAuto;
+    /// Oscilloscope data buffer.
+    unsigned char Scope[2048];
+    /// Miscellaneous data buffer.
+    unsigned char MiscData[512];
+    /// Communications error indicator.
+    bool CommError;
+    /// Output data buffer.
+    unsigned char BufferOUT[520];
+    /// Spectrum data buffer.
+    Spec SPECTRUM;
+    /// Packet input buffer.
+    Packet_In PIN;
 
-	int UDP_offset;
-	bool Netfinder_active;
-	int Netfinder_Seq;
+    /// ACK received indicator.
+    bool ACK_Received;
+    /// Packet received indicator.
+    bool Packet_Received;
+    /// Communication timeout error indicator flag.
+    bool Timeout_flag;
 
-	/// USB default timeout is the longest time period that the USB interface will wait for a transaction.
-	bool USB_Default_Timeout;
+    int UDP_offset;
+    bool Netfinder_active;
+    int Netfinder_Seq;
+
+    /// USB default timeout is the longest time period that the USB interface will wait for a transaction.
+    bool USB_Default_Timeout;
 };
 
