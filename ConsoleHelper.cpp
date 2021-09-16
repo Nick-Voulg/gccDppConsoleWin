@@ -154,7 +154,7 @@ bool CConsoleHelper::ReceiveData() {
 
     bDataReceived = true;
     ParsePkt.DppState.ReqProcess = ParsePkt.ParsePacket(DP5Proto.PacketIn, &DP5Proto.PIN);
-    cout << int(ParsePkt.DppState.ReqProcess) << endl;
+//    cout << int(ParsePkt.DppState.ReqProcess) << endl;
     switch (ParsePkt.DppState.ReqProcess) {
         case preqProcessStatus:
             long idxStatus;
@@ -179,6 +179,9 @@ bool CConsoleHelper::ReceiveData() {
         case preqProcessListModeData:
             ProcessListModeDataEx(DP5Proto.PIN, ParsePkt.DppState);
             break;
+        case preqProcessListModeDataFifoFull:
+            ProcessListModeDataEx(DP5Proto.PIN, ParsePkt.DppState);
+            break;
         case preqProcessCfgRead:
             ProcessCfgReadEx(DP5Proto.PIN, ParsePkt.DppState);
             break;
@@ -189,8 +192,8 @@ bool CConsoleHelper::ReceiveData() {
 //			DisplayError(DP5Proto.PIN, ParsePkt.DppState);
 //			break;
         default:
-            cout << int(DP5Proto.PIN.PID1) << endl;
-            cout << int(DP5Proto.PIN.PID2) << endl;
+//            cout << int(DP5Proto.PIN.PID1) << endl;
+//            cout << int(DP5Proto.PIN.PID2) << endl;
             bDataReceived = false;
             break;
     }
@@ -221,6 +224,35 @@ void CConsoleHelper::ProcessSpectrumEx(Packet_In PIN, DppStateType DppState) {
 
 //processes list mode
 void CConsoleHelper::ProcessListModeDataEx(Packet_In PIN, DppStateType DppState) {
+    DP5Proto.LISTDATA.CHANNELS = 1024;
+//  LEN: 0~4096 bits
+    if (DP5Proto.LISTDATA.CHANNELS == 1024) {
+        DP5Proto.LISTDATA.RECORDS = PIN.LEN / 32;
+    }
+    std::vector<unsigned char> time_tag_top(30, 0);
+    std::vector<unsigned char> time_tag(46,0);
+    for (int record = 0; record < DP5Proto.LISTDATA.RECORDS; record++) {
+        unsigned char D31 = PIN.DATA[record * 32 + 31];
+        unsigned char D30 = PIN.DATA[record * 32 + 30];
+        unsigned char buffer_select = D30;
+        std::vector<unsigned char> amplitude(14);
+        std::vector<unsigned char> time_tag_bottom(16);
+        if (D31 == 0) {
+//          32-bit Event Record SYNC=INT
+            for (unsigned int i = 0; i < amplitude.size(); i++)
+                amplitude[i] = PIN.DATA[record * 32 + 16 + i];
+            for (unsigned int i = 0; i < time_tag_bottom.size(); i++)
+                time_tag_bottom[i] = PIN.DATA[record * 32 + i];
+        } else if (D31 == 1) {
+//          32-bit Timetag
+            for (unsigned int i = 0; i < time_tag_top.size(); i++)
+                time_tag_top[i] = PIN.DATA[record * 32 + i];
+        }
+        time_tag = time_tag_bottom;
+        std::copy(time_tag_top.begin(), time_tag_top.end(), std::back_inserter(time_tag));
+        std::pair<std::string, std::string> p = std::make_pair(std::string(amplitude.begin(), amplitude.end()), std::string(time_tag.begin(), time_tag.end()));
+        DP5Proto.LISTDATA.AMPLITUDEANDTIME.push_back(p);
+    }
 
 }
 

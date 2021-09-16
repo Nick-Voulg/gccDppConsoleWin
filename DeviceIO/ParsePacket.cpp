@@ -149,7 +149,7 @@ long CParsePacket::ParsePacket(unsigned char P[], Packet_In *PIN) {
         } else if ((PIN->PID1 == PID1_RCV_SCOPE_MISC) && (PIN->PID2 == RCVPT_LIST_MODE_DATA)) {
             ParsePkt = preqProcessListModeData;
         } else if ((PIN->PID1 == PID1_RCV_SCOPE_MISC) && (PIN->PID2 == RCVPT_LIST_MODE_DATA_FIFO_FULL)) {
-            ParsePkt = preqProcessListModeData;
+            ParsePkt = preqProcessListModeDataFifoFull;
         } else if ((PIN->PID1 == PID1_RCV_SCOPE_MISC) && (PIN->PID2 == RCVPT_OPTION_PA_CALIBRATION)) {
             ParsePkt = preqProcessPaCal;
         } else if (PIN->PID1 == PID1_ACK) {

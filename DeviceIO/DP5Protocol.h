@@ -2,6 +2,8 @@
 #pragma once
 
 #include <math.h>
+#include <vector>
+#include <string>
 
 enum TRANSMIT_PACKET_TYPE {
     //REQUEST_PACKETS_TO_DP5
@@ -295,10 +297,18 @@ struct Packet_Out {
 #define MAX_BUFFER_DATA        8192
 #define MAX_SCOPE_DATA        2048
 #define USB_DiagDataDelayMS 2500
+#define MAX_LIST_BUFFER_DATA 4096
 
 struct Spec {
     long DATA[MAX_BUFFER_DATA];   // this keeps total of static data under 64K VB limit
     short CHANNELS;
+};
+
+struct List {
+    long DATA[MAX_LIST_BUFFER_DATA];
+    short CHANNELS;
+    short RECORDS;
+    std::vector< std::pair<std::string, std::string> > AMPLITUDEANDTIME;
 };
 
 class CDP5Protocol {
@@ -333,6 +343,8 @@ public:
     unsigned char BufferOUT[520];
     /// Spectrum data buffer.
     Spec SPECTRUM;
+    /// List-mode data buffer.
+    List LISTDATA;
     /// Packet input buffer.
     Packet_In PIN;
 

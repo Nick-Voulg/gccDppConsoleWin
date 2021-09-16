@@ -21,6 +21,7 @@ using namespace std;
 #define CLEAR_TERM "clear"
 #endif
 
+
 CConsoleHelper chdpp;                    // DPP communications functions
 bool bRunSpectrumTest = false;            // run spectrum test
 bool bRunConfigurationTest = false;        // run configuration test
@@ -139,6 +140,10 @@ void SendPresetAcquisitionTime(string strPRET) {
     }
 }
 
+bool SendListData(std::vector< std::pair<std::string, std::string> > list_data) {
+
+}
+
 // Acquire Spectrum
 //		CConsoleHelper::LibUsb_SendCommand(XMTPT_DISABLE_MCA_MCS)		//disable for data/status clear
 //		CConsoleHelper::LibUsb_SendCommand(XMTPT_SEND_CLEAR_SPECTRUM_STATUS)  //clear spectrum/status
@@ -167,14 +172,15 @@ void AcquireSpectrum() {
             if (chdpp.LibUsb_SendCommand(XMTPT_SEND_LIST_MODE_DATA)) {    // request list
                 if (chdpp.LibUsb_ReceiveData()) {
                     bDisableMCA = true;                // we are aquiring data, disable mca when done
-                    system(CLEAR_TERM);
-                    cout << int(chdpp.DP5Proto.PIN.DATA) << endl;
-                    Sleep(2000);
+                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME[0].first << endl;
+                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME[0].second << endl;
+                    SendListData(chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME);
                 }
             } else {
                 cout << "\t\tProblem acquiring spectrum." << endl;
                 break;
             }
+            Sleep(1);
         }
         if (bDisableMCA) {
             //system("Pause");
@@ -184,6 +190,7 @@ void AcquireSpectrum() {
         }
     }
 }
+
 
 // Read Configuration File
 //		CConsoleHelper::SndCmd.GetDP5CfgStr("PX5_Console_Test.txt");
@@ -340,22 +347,64 @@ int main(int argc, char *argv[]) {
     cout << "Press the Enter key to continue . . .";
     _getch();
 
-    system(CLEAR_TERM);
-    SendPresetAcquisitionTime("PRET=20;");
-    SaveSpectrumConfig();
-    cout << "Press the Enter key to continue . . .";
-    _getch();
-
-    system(CLEAR_TERM);
-    AcquireSpectrum();
-    SaveSpectrumFile();
-    cout << "Press the Enter key to continue . . .";
-    _getch();
-
+//    system(CLEAR_TERM);
+//    SendPresetAcquisitionTime("PRET=20;");
+//    SaveSpectrumConfig();
+//    cout << "Press the Enter key to continue . . .";
+//    _getch();
     system(CLEAR_TERM);
     SendPresetAcquisitionTime("PRET=OFF;");
     cout << "Press the Enter key to continue . . .";
     _getch();
+
+    while (1) {
+        system(CLEAR_TERM);
+        cout << "Request status packet: 1" << endl;
+        cout << "Request List-mode data: 2" << endl;
+        cout << "Text configuration to DP5: 3" << endl;
+        cout << "Text configuration Readback from DP5: 4" << endl;
+        cout << "Clear Spectrum Buffer: 5" << endl;
+        cout << "Enable MCA/MCS: 6" << endl;
+        cout << "Disable MCA/MCS: 7" << endl;
+        cout << "Clear/Sync List-mode timer: 8" << endl;
+        cout << "Set request List-mode call interval time (milli sec): 9" << endl;
+        cout << "Start request List-mode call loop: 10" << endl;
+        cout << "End: 0" << endl;
+        int command = 0;
+        cin >> command;
+        if (command == 0) {
+            break;
+        } else if (command == 1) {
+            break;
+        } else if (command == 2) {
+            break;
+        } else if (command == 3) {
+            break;
+        } else if (command == 4) {
+            break;
+        } else if (command == 5) {
+            break;
+        } else if (command == 6) {
+            break;
+        } else if (command == 7) {
+            break;
+        } else if (command == 8) {
+            break;
+        } else if (command == 9) {
+            int time = 0;
+            cin >> time;
+        } else if (command == 10) {
+            AcquireSpectrum();
+        } else {
+            break;
+        }
+    }
+
+
+    SaveSpectrumFile();
+    cout << "Press the Enter key to continue . . .";
+    _getch();
+
 
     system(CLEAR_TERM);
     ReadConfigFile();

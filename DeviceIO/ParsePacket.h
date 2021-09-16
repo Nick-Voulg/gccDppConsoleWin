@@ -26,6 +26,7 @@ typedef enum _CommType {
 #define preqProcessCfgRead 0x200
 #define preqProcessNetFindRead 0x400
 #define preqProcessListModeData 0x500
+#define preqProcessListModeDataFifoFull 0x510
 #define preqProcessPaCal 0x800
 //...
 #define preqProcessSCAData 0x2000
