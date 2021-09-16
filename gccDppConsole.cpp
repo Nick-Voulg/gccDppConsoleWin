@@ -5,22 +5,22 @@
 
 using namespace std;
 
-#include "ConsoleHelper.h"
-#include "stringex.h"
 
 #ifdef _WIN32
+#include <WinSock2.h>
 #include <windows.h>
 #include <conio.h>
 #define CLEAR_TERM "cls"
 #else
-
-#include <unistd.h>
 
 #define Sleep(x) usleep((x)*1000)
 #define _getch getchar
 #define CLEAR_TERM "clear"
 #endif
 
+#include "ConsoleHelper.h"
+#include "stringex.h"
+#include <unistd.h>
 
 CConsoleHelper chdpp;                    // DPP communications functions
 bool bRunSpectrumTest = false;            // run spectrum test
