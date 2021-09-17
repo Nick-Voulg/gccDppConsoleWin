@@ -4,6 +4,7 @@
 #include <math.h>
 #include <vector>
 #include <string>
+//#include <bitset>
 
 enum TRANSMIT_PACKET_TYPE {
     //REQUEST_PACKETS_TO_DP5
@@ -308,7 +309,9 @@ struct List {
     long DATA[MAX_LIST_BUFFER_DATA];
     short CHANNELS;
     short RECORDS;
-    std::vector< std::pair<std::string, std::string> > AMPLITUDEANDTIME;
+//    std::vector< std::pair<unsigned int, unsigned int> > AMPLITUDEANDTIME;
+//    std::vector< std::pair< std::bitset<14>, std::bitset<46> > > AMPLITUDEANDTIME;
+    std::vector< std::vecor<unsigned int> > AMPLITUDEANDTIME;
 };
 
 class CDP5Protocol {

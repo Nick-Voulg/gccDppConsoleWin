@@ -4,6 +4,7 @@
 #include "stringSplit.h"
 #include "stringex.h"
 #include <string.h>
+//#include <bitset>
 
 using namespace stringSplit;
 
@@ -229,28 +230,29 @@ void CConsoleHelper::ProcessListModeDataEx(Packet_In PIN, DppStateType DppState)
     if (DP5Proto.LISTDATA.CHANNELS == 1024) {
         DP5Proto.LISTDATA.RECORDS = PIN.LEN / 32;
     }
-    std::vector<unsigned char> time_tag_top(30, 0);
-    std::vector<unsigned char> time_tag(46,0);
+    std::bitset<46> time_tag_top;
+    std::bitset<46> time_tag;
     for (int record = 0; record < DP5Proto.LISTDATA.RECORDS; record++) {
         unsigned char D31 = PIN.DATA[record * 32 + 31];
         unsigned char D30 = PIN.DATA[record * 32 + 30];
         unsigned char buffer_select = D30;
-        std::vector<unsigned char> amplitude(14);
-        std::vector<unsigned char> time_tag_bottom(16);
+        std::bitset<14> amplitude;
+        std::bitset<46> time_tag_bottom;
         if (D31 == 0) {
 //          32-bit Event Record SYNC=INT
             for (unsigned int i = 0; i < amplitude.size(); i++)
                 amplitude[i] = PIN.DATA[record * 32 + 16 + i];
-            for (unsigned int i = 0; i < time_tag_bottom.size(); i++)
+            for (unsigned int i = 0; i < 16; i++)
                 time_tag_bottom[i] = PIN.DATA[record * 32 + i];
         } else if (D31 == 1) {
 //          32-bit Timetag
-            for (unsigned int i = 0; i < time_tag_top.size(); i++)
+            for (unsigned int i = 0; i < 30; i++)
                 time_tag_top[i] = PIN.DATA[record * 32 + i];
         }
-        time_tag = time_tag_bottom;
-        std::copy(time_tag_top.begin(), time_tag_top.end(), std::back_inserter(time_tag));
-        std::pair<std::string, std::string> p = std::make_pair(std::string(amplitude.begin(), amplitude.end()), std::string(time_tag.begin(), time_tag.end()));
+        time_tag = (time_tag_top << 16) | time_tag_bottom;
+//        std::pair<unsigned int, unsigned int> p = std::make_pair(amplitude.to_ulong(), time_tag.to_ulong());
+//        std::pair< std::bitset<14>, std::bitset<46> > p = std::make_pair(amplitude, time_tag);
+        std::vector<unsigned int> p{amplitude.to_ulong(), time_tag.to_ulong()};
         DP5Proto.LISTDATA.AMPLITUDEANDTIME.push_back(p);
     }
 

@@ -7,7 +7,6 @@ using namespace std;
 
 
 #ifdef _WIN32
-#include <WinSock2.h>
 #include <windows.h>
 #include <conio.h>
 #define CLEAR_TERM "cls"
@@ -21,6 +20,7 @@ using namespace std;
 #include "ConsoleHelper.h"
 #include "stringex.h"
 #include <unistd.h>
+#include <bitset>
 
 CConsoleHelper chdpp;                    // DPP communications functions
 bool bRunSpectrumTest = false;            // run spectrum test
@@ -140,7 +140,7 @@ void SendPresetAcquisitionTime(string strPRET) {
     }
 }
 
-bool SendListData(std::vector< std::pair<std::string, std::string> > list_data) {
+bool SendListData(std::vector< std::vector<unsigned int> > list_data) {
 
 }
 
@@ -172,8 +172,8 @@ void AcquireSpectrum() {
             if (chdpp.LibUsb_SendCommand(XMTPT_SEND_LIST_MODE_DATA)) {    // request list
                 if (chdpp.LibUsb_ReceiveData()) {
                     bDisableMCA = true;                // we are aquiring data, disable mca when done
-                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME[0].first << endl;
-                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME[0].second << endl;
+                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME[0][0] << endl;
+                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME[0][1] << endl;
                     SendListData(chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME);
                 }
             } else {
