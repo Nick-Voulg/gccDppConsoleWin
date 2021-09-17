@@ -305,7 +305,6 @@ struct Spec {
 };
 
 struct List {
-    long DATA[MAX_LIST_BUFFER_DATA];
     short CHANNELS;
     short RECORDS;
     std::vector< std::vector<unsigned long long> > AMPLITUDEANDTIME;
