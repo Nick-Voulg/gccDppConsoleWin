@@ -4,7 +4,6 @@
 #include "stringSplit.h"
 #include "stringex.h"
 #include <string.h>
-//#include <bitset>
 
 using namespace stringSplit;
 
@@ -230,29 +229,27 @@ void CConsoleHelper::ProcessListModeDataEx(Packet_In PIN, DppStateType DppState)
     if (DP5Proto.LISTDATA.CHANNELS == 1024) {
         DP5Proto.LISTDATA.RECORDS = PIN.LEN / 32;
     }
-    std::bitset<46> time_tag_top;
-    std::bitset<46> time_tag;
+    unsigned int time_tag_top;
+    unsigned long long time_tag;
     for (int record = 0; record < DP5Proto.LISTDATA.RECORDS; record++) {
-        unsigned char D31 = PIN.DATA[record * 32 + 31];
-        unsigned char D30 = PIN.DATA[record * 32 + 30];
-        unsigned char buffer_select = D30;
-        std::bitset<14> amplitude;
-        std::bitset<46> time_tag_bottom;
-        if (D31 == 0) {
+        bool D31 = PIN.DATA[record * 4 + 3] & (1<<7);
+        bool D30 = PIN.DATA[record * 4 + 3] & (1<<6);
+        bool buffer_select = D30;
+        unsigned int amplitude;
+        unsigned int time_tag_bottom;
+        if (D31 == true) {
 //          32-bit Event Record SYNC=INT
-            for (unsigned int i = 0; i < amplitude.size(); i++)
-                amplitude[i] = PIN.DATA[record * 32 + 16 + i];
-            for (unsigned int i = 0; i < 16; i++)
-                time_tag_bottom[i] = PIN.DATA[record * 32 + i];
-        } else if (D31 == 1) {
+            unsigned int amplitude_mask = (1 << 7) | (1 << 6);
+            amplitude = PIN.DATA[record * 4 + 2] + (PIN.DATA[record * 4 + 3] & ~amplitude_mask) * 256;
+            time_tag_bottom = PIN.DATA[record * 4] + PIN.DATA[record * 4 + 1] * 256;
+        } else if (D31 == false) {
 //          32-bit Timetag
-            for (unsigned int i = 0; i < 30; i++)
-                time_tag_top[i] = PIN.DATA[record * 32 + i];
+            unsigned int time_tag_mask = (1 << 7) | (1 << 6);
+            time_tag_top = PIN.DATA[record * 4] + PIN.DATA[record * 4 + 1] * 256
+                    + PIN.DATA[record * 4 + 2] * 65536 + (PIN.DATA[record * 4 + 3] & ~time_tag_mask) * 16777216;
         }
-        time_tag = (time_tag_top << 16) | time_tag_bottom;
-//        std::pair<unsigned int, unsigned int> p = std::make_pair(amplitude.to_ulong(), time_tag.to_ulong());
-//        std::pair< std::bitset<14>, std::bitset<46> > p = std::make_pair(amplitude, time_tag);
-        std::vector<unsigned int> p{amplitude.to_ulong(), time_tag.to_ulong()};
+        time_tag = time_tag_bottom + time_tag_top * 65536;
+        std::vector<unsigned long long> p{amplitude, time_tag};
         DP5Proto.LISTDATA.AMPLITUDEANDTIME.push_back(p);
     }
 

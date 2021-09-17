@@ -20,7 +20,6 @@ using namespace std;
 #include "ConsoleHelper.h"
 #include "stringex.h"
 #include <unistd.h>
-#include <bitset>
 
 CConsoleHelper chdpp;                    // DPP communications functions
 bool bRunSpectrumTest = false;            // run spectrum test
@@ -140,7 +139,7 @@ void SendPresetAcquisitionTime(string strPRET) {
     }
 }
 
-bool SendListData(std::vector< std::vector<unsigned int> > list_data) {
+bool SendListData(std::vector< std::vector<unsigned long long> > list_data) {
 
 }
 

@@ -8,7 +8,7 @@ CFLAGS=-m32
 CXX=g++
 CXXFLAGS=$(CFLAGS)
 ifeq "$(CFG)" "Debug"
-CFLAGS+= -W -O0 -fexceptions -I../gccDppConsoleWin/DeviceIO/ -I../gccDppConsoleWin/ -g -fno-inline -D_DEBUG -D_CONSOLE 
+CFLAGS+= -W -O0 -fexceptions -I../gccDppConsoleWin/DeviceIO/ -I../gccDppConsoleWin/ -g -fno-inline -D_DEBUG -D_CONSOLE -std=c++11
 LD=$(CXX) $(CXXFLAGS)
 LDFLAGS=
 LDFLAGS+= -L../gccDppConsoleWin/DeviceIO/
@@ -17,7 +17,7 @@ ifndef TARGET
 TARGET=gccDppConsole.exe
 endif
 ifeq "$(CFG)" "Release"
-CFLAGS+= -W -O2 -fexceptions -I../gccDppConsoleWin/DeviceIO/ -I../gccDppConsoleWin/ -g -fno-inline -DNDEBUG -D_CONSOLE 
+CFLAGS+= -W -O2 -fexceptions -I../gccDppConsoleWin/DeviceIO/ -I../gccDppConsoleWin/ -g -fno-inline -DNDEBUG -D_CONSOLE -std=c++11
 LD=$(CXX) $(CXXFLAGS)
 LDFLAGS=
 LDFLAGS+= -L../gccDppConsoleWin/DeviceIO/
