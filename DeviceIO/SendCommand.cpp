@@ -174,8 +174,14 @@ bool CSendCommand::DP5_CMD(unsigned char Buffer[], TRANSMIT_PACKET_TYPE XmtCmd) 
             //case XMTPT_UC_FPGA_CHECKSUMS:
             //break;
             ////VENDOR_REQUESTS_TO_DP5
-            //case XMTPT_CLEAR_SPECTRUM_BUFFER_A:
-            //break;
+        case XMTPT_CLEAR_SPECTRUM_BUFFER_A:
+            POUT.PID1 = PID1_VENDOR_REQ;
+            POUT.PID2 = PID2_CLEAR_SPECTRUM_BUFFER_A;
+            break;
+        case XMTPT_CLEAR_LIST_MODE_TIMER:
+            POUT.PID1 = PID1_VENDOR_REQ;
+            POUT.PID2 = PID2_CLEAR_LIST_MODE_TIMER;
+            break;
         case XMTPT_ENABLE_MCA_MCS:
             POUT.PID1 = PID1_VENDOR_REQ;
             POUT.PID2 = PID2_ENABLE_MCA_MCS;

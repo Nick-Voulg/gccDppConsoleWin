@@ -139,8 +139,8 @@ void SendPresetAcquisitionTime(string strPRET) {
     }
 }
 
-bool SendListData(std::vector< std::vector<unsigned long long> > list_data) {
-
+bool SendListData(std::vector<unsigned long long> &list_data) {
+    list_data.clear();
 }
 
 // Acquire Spectrum
@@ -151,7 +151,7 @@ bool SendListData(std::vector< std::vector<unsigned long long> > list_data) {
 //		CConsoleHelper::LibUsb_ReceiveData()							// process spectrum and data
 //		CConsoleHelper::ConsoleGraph()	(low resolution display)		// graph data on console with status
 //		CConsoleHelper::LibUsb_SendCommand(XMTPT_DISABLE_MCA_MCS)		// disable mca after acquisition
-void AcquireSpectrum() {
+void AcquireSpectrum(int time) {
     int MaxMCA = 11;
     bool bDisableMCA;
 
@@ -171,15 +171,15 @@ void AcquireSpectrum() {
             if (chdpp.LibUsb_SendCommand(XMTPT_SEND_LIST_MODE_DATA)) {    // request list
                 if (chdpp.LibUsb_ReceiveData()) {
                     bDisableMCA = true;                // we are aquiring data, disable mca when done
-                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME[0][0] << endl;
-                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME[0][1] << endl;
+//                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME[0] << endl;
+//                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME.size() << endl;
                     SendListData(chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME);
                 }
             } else {
                 cout << "\t\tProblem acquiring spectrum." << endl;
                 break;
             }
-            Sleep(1);
+            Sleep(time);
         }
         if (bDisableMCA) {
             //system("Pause");
@@ -357,16 +357,17 @@ int main(int argc, char *argv[]) {
     _getch();
 
     while (1) {
+        int time = 1000;
         system(CLEAR_TERM);
         cout << "Request status packet: 1" << endl;
-        cout << "Request List-mode data: 2" << endl;
-        cout << "Text configuration to DP5: 3" << endl;
-        cout << "Text configuration Readback from DP5: 4" << endl;
+//        cout << "Request List-mode data: 2" << endl;
+//        cout << "Text configuration to DP5: 3" << endl;
+//        cout << "Text configuration Readback from DP5: 4" << endl;
         cout << "Clear Spectrum Buffer: 5" << endl;
         cout << "Enable MCA/MCS: 6" << endl;
         cout << "Disable MCA/MCS: 7" << endl;
         cout << "Clear/Sync List-mode timer: 8" << endl;
-        cout << "Set request List-mode call interval time (milli sec): 9" << endl;
+        cout << "Set request List-mode call interval time (milli sec): 9" << " now: " << time << endl;
         cout << "Start request List-mode call loop: 10" << endl;
         cout << "End: 0" << endl;
         int command = 0;
@@ -374,7 +375,9 @@ int main(int argc, char *argv[]) {
         if (command == 0) {
             break;
         } else if (command == 1) {
-            break;
+            GetDppStatus();
+            cout << "Press the Enter key to continue . . .";
+            _getch();
         } else if (command == 2) {
             break;
         } else if (command == 3) {
@@ -382,18 +385,35 @@ int main(int argc, char *argv[]) {
         } else if (command == 4) {
             break;
         } else if (command == 5) {
-            break;
+            cout << "\t\tClear spectrum" << endl;
+            if(chdpp.LibUsb_SendCommand(XMTPT_CLEAR_SPECTRUM_BUFFER_A)) {
+                chdpp.LibUsb_ReceiveData();
+            }
+            cout << "Press the Enter key to continue . . .";
+            _getch();
         } else if (command == 6) {
-            break;
+            cout << "\t\tEnabling MCA for spectrum data acquisition with status ." << endl;
+            chdpp.LibUsb_SendCommand(XMTPT_ENABLE_MCA_MCS);
+            cout << "Press the Enter key to continue . . .";
+            _getch();
         } else if (command == 7) {
-            break;
+            cout << "\t\tDisabling MCA for spectrum data/status clear." << endl;
+            chdpp.LibUsb_SendCommand(XMTPT_DISABLE_MCA_MCS);
+            cout << "Press the Enter key to continue . . .";
+            _getch();
         } else if (command == 8) {
-            break;
+            cout << "\t\tClear list mode timer" << endl;
+            if(chdpp.LibUsb_SendCommand(XMTPT_CLEAR_LIST_MODE_TIMER)) {
+                chdpp.LibUsb_ReceiveData();
+            }
+            cout << "Press the Enter key to continue . . .";
+            _getch();
         } else if (command == 9) {
-            int time = 0;
             cin >> time;
+            cout << "Press the Enter key to continue . . .";
+            _getch();
         } else if (command == 10) {
-            AcquireSpectrum();
+            AcquireSpectrum(time);
         } else {
             break;
         }

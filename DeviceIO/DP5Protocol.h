@@ -50,6 +50,7 @@ enum TRANSMIT_PACKET_TYPE {
 
     //VENDOR_REQUESTS_TO_DP5
     XMTPT_CLEAR_SPECTRUM_BUFFER_A,
+    XMTPT_CLEAR_LIST_MODE_TIMER,
     XMTPT_ENABLE_MCA_MCS,
     XMTPT_DISABLE_MCA_MCS,
     XMTPT_ARM_DIGITAL_OSCILLOSCOPE,
@@ -193,6 +194,7 @@ enum PID2_VENDOR_REQ_TYPE {
     PID2_SET_SERIAL_NUMBER = 0x0F,
     PID2_CLEAR_GP_COUNTER = 0x10,
     PID2_SET_ETHERNET_SETTINGS = 0x11,
+    PID2_CLEAR_LIST_MODE_TIMER = 0x16,
     //PID2_SWITCH_SUPPLIES
     PID2_ETHERNET_ALLOW_SHAREING = 0x20,
     PID2_ETHERNET_NO_SHARING = 0x21,
@@ -307,7 +309,8 @@ struct Spec {
 struct List {
     short CHANNELS;
     short RECORDS;
-    std::vector< std::vector<unsigned long long> > AMPLITUDEANDTIME;
+    std::vector<unsigned long long> AMPLITUDEANDTIME;
+//    unsigned long long time_tag_top = 0;
 };
 
 class CDP5Protocol {

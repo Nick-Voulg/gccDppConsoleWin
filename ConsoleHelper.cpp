@@ -185,9 +185,9 @@ bool CConsoleHelper::ReceiveData() {
         case preqProcessCfgRead:
             ProcessCfgReadEx(DP5Proto.PIN, ParsePkt.DppState);
             break;
-            //case preqProcessAck:
-            //	ProcessAck(DP5Proto.PIN.PID2);
-            //	break;
+        case preqProcessAck:
+            ProcessAck(DP5Proto.PIN);
+            break;
 //		case preqProcessError:
 //			DisplayError(DP5Proto.PIN, ParsePkt.DppState);
 //			break;
@@ -200,6 +200,14 @@ bool CConsoleHelper::ReceiveData() {
     return (bDataReceived);
 }
 
+void CConsoleHelper::ProcessAck(Packet_In PIN) {
+    if (PIN.PID2 != 0) {
+        std::cout << "ark error: " << +PIN.PID2 << std::endl;
+    } else {
+        std::cout << "ark success" << std::endl;
+    }
+
+}
 //processes spectrum and spectrum+status
 void CConsoleHelper::ProcessSpectrumEx(Packet_In PIN, DppStateType DppState) {
     long idxSpectrum;
@@ -225,32 +233,38 @@ void CConsoleHelper::ProcessSpectrumEx(Packet_In PIN, DppStateType DppState) {
 //processes list mode
 void CConsoleHelper::ProcessListModeDataEx(Packet_In PIN, DppStateType DppState) {
     DP5Proto.LISTDATA.CHANNELS = 1024;
-//  LEN: 0~4096 bits
+//  LEN: 0~4096 byte : 0~1024 records (32 bit)
     if (DP5Proto.LISTDATA.CHANNELS == 1024) {
-        DP5Proto.LISTDATA.RECORDS = PIN.LEN / 32;
+        DP5Proto.LISTDATA.RECORDS = PIN.LEN / 4;
     }
-    unsigned int time_tag_top;
-    unsigned long long time_tag;
+    unsigned long long time_tag_top = 0;
+    unsigned long long time_tag = 0;
     for (int record = 0; record < DP5Proto.LISTDATA.RECORDS; record++) {
         bool D31 = PIN.DATA[record * 4 + 3] & (1<<7);
         bool D30 = PIN.DATA[record * 4 + 3] & (1<<6);
         bool buffer_select = D30;
-        unsigned int amplitude;
-        unsigned int time_tag_bottom;
-        if (D31 == true) {
+//        0~16383
+        unsigned int amplitude = 0;
+        unsigned int time_tag_bottom = 0;
+        if (D31 == false) {
 //          32-bit Event Record SYNC=INT
             unsigned int amplitude_mask = (1 << 7) | (1 << 6);
             amplitude = PIN.DATA[record * 4 + 2] + (PIN.DATA[record * 4 + 3] & ~amplitude_mask) * 256;
             time_tag_bottom = PIN.DATA[record * 4] + PIN.DATA[record * 4 + 1] * 256;
-        } else if (D31 == false) {
+        } else if (D31 == true && D30 == false) {
 //          32-bit Timetag
             unsigned int time_tag_mask = (1 << 7) | (1 << 6);
             time_tag_top = PIN.DATA[record * 4] + PIN.DATA[record * 4 + 1] * 256
                     + PIN.DATA[record * 4 + 2] * 65536 + (PIN.DATA[record * 4 + 3] & ~time_tag_mask) * 16777216;
+            std::cout << time_tag_top << std::endl;
+        } else {
+            std::cout << "error" << std::endl;
         }
         time_tag = time_tag_bottom + time_tag_top * 65536;
-        std::vector<unsigned long long> p{amplitude, time_tag};
-        DP5Proto.LISTDATA.AMPLITUDEANDTIME.push_back(p);
+        DP5Proto.LISTDATA.AMPLITUDEANDTIME.push_back(time_tag * 100000 + amplitude);
+//        DP5Proto.LISTDATA.AMPLITUDEANDTIME.push_back(amplitude);
+//        std::cout << time_tag * 100000 + amplitude << std::endl;
+
     }
 
 }

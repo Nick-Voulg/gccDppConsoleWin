@@ -67,6 +67,8 @@ public:
     /// Processes DPP data from all communication interfaces (USB,RS232,INET)
     bool ReceiveData();
 
+    void ProcessAck(Packet_In PIN);
+
     /// Processes spectrum packets.
     void ProcessSpectrumEx(Packet_In PIN, DppStateType DppState);
 
