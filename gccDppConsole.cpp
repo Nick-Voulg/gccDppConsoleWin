@@ -171,11 +171,10 @@ void AcquireSpectrum(int time) {
             system(CLEAR_TERM);
             if (chdpp.LibUsb_SendCommand(XMTPT_SEND_LIST_MODE_DATA)) {    // request list
                 if (chdpp.LibUsb_ReceiveData()) {
-                    bDisableMCA = true;                // we are aquiring data, disable mca when done
+                    bDisableMCA = true;
 //                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME[0] << endl;
 //                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME.size() << endl;
                     SendListData(chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME);
-
                 }
             } else {
                 cout << "\t\tProblem acquiring spectrum." << endl;
@@ -388,7 +387,7 @@ int main(int argc, char *argv[]) {
             break;
         } else if (command == 5) {
             cout << "\t\tClear spectrum" << endl;
-            if(chdpp.LibUsb_SendCommand(XMTPT_CLEAR_SPECTRUM_BUFFER_A)) {
+            if (chdpp.LibUsb_SendCommand(XMTPT_CLEAR_SPECTRUM_BUFFER_A)) {
                 chdpp.LibUsb_ReceiveData();
             }
             cout << "Press the Enter key to continue . . .";
@@ -405,7 +404,7 @@ int main(int argc, char *argv[]) {
             _getch();
         } else if (command == 8) {
             cout << "\t\tClear list mode timer" << endl;
-            if(chdpp.LibUsb_SendCommand(XMTPT_CLEAR_LIST_MODE_TIMER)) {
+            if (chdpp.LibUsb_SendCommand(XMTPT_CLEAR_LIST_MODE_TIMER)) {
                 chdpp.LibUsb_ReceiveData();
             }
             cout << "Press the Enter key to continue . . .";
