@@ -168,12 +168,14 @@ void AcquireSpectrum(int time) {
         chdpp.LibUsb_SendCommand(XMTPT_ENABLE_MCA_MCS);
         Sleep(1000);
         while (true) {
+            system(CLEAR_TERM);
             if (chdpp.LibUsb_SendCommand(XMTPT_SEND_LIST_MODE_DATA)) {    // request list
                 if (chdpp.LibUsb_ReceiveData()) {
                     bDisableMCA = true;                // we are aquiring data, disable mca when done
 //                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME[0] << endl;
 //                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME.size() << endl;
                     SendListData(chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME);
+
                 }
             } else {
                 cout << "\t\tProblem acquiring spectrum." << endl;

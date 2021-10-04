@@ -240,8 +240,13 @@ void CConsoleHelper::ProcessListModeDataEx(Packet_In PIN, DppStateType DppState)
     unsigned long long time_tag_top = 0;
     unsigned long long time_tag = 0;
     for (int record = 0; record < DP5Proto.LISTDATA.RECORDS; record++) {
-        bool D31 = PIN.DATA[record * 4 + 3] & (1<<7);
-        bool D30 = PIN.DATA[record * 4 + 3] & (1<<6);
+//        Debug protocol
+//        for (int x = 0 ; x < 4; x++) {
+//            std::cout << +PIN.DATA[record * 4 + x] << " ";
+//        }
+//        std::cout << std::endl;
+        bool D31 = PIN.DATA[record * 4] & (1<<7);
+        bool D30 = PIN.DATA[record * 4] & (1<<6);
         bool buffer_select = D30;
 //        0~16383
         unsigned int amplitude = 0;
@@ -249,21 +254,21 @@ void CConsoleHelper::ProcessListModeDataEx(Packet_In PIN, DppStateType DppState)
         if (D31 == false) {
 //          32-bit Event Record SYNC=INT
             unsigned int amplitude_mask = (1 << 7) | (1 << 6);
-            amplitude = PIN.DATA[record * 4 + 2] + (PIN.DATA[record * 4 + 3] & ~amplitude_mask) * 256;
-            time_tag_bottom = PIN.DATA[record * 4] + PIN.DATA[record * 4 + 1] * 256;
+            amplitude = PIN.DATA[record * 4 + 1] + (PIN.DATA[record * 4] & ~amplitude_mask) * 256;
+            time_tag_bottom = PIN.DATA[record * 4 + 3] + PIN.DATA[record * 4 + 2] * 256;
         } else if (D31 == true && D30 == false) {
 //          32-bit Timetag
             unsigned int time_tag_mask = (1 << 7) | (1 << 6);
-            time_tag_top = PIN.DATA[record * 4] + PIN.DATA[record * 4 + 1] * 256
-                    + PIN.DATA[record * 4 + 2] * 65536 + (PIN.DATA[record * 4 + 3] & ~time_tag_mask) * 16777216;
-            std::cout << time_tag_top << std::endl;
+            time_tag_top = PIN.DATA[record * 4 + 3] + PIN.DATA[record * 4 + 2] * 256
+                    + PIN.DATA[record * 4 + 1] * 65536 + (PIN.DATA[record * 4] & ~time_tag_mask) * 16777216;
         } else {
             std::cout << "error" << std::endl;
+            continue;
         }
         time_tag = time_tag_bottom + time_tag_top * 65536;
         DP5Proto.LISTDATA.AMPLITUDEANDTIME.push_back(time_tag * 100000 + amplitude);
-//        DP5Proto.LISTDATA.AMPLITUDEANDTIME.push_back(amplitude);
-//        std::cout << time_tag * 100000 + amplitude << std::endl;
+//        DP5Proto.LISTDATA.AMPLITUDEANDTIME.push_back(time_tag);
+//        std::cout << DP5Proto.LISTDATA.time_tag_top << std::endl;
 
     }
 
