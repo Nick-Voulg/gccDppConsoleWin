@@ -140,6 +140,8 @@ void SendPresetAcquisitionTime(string strPRET) {
 }
 
 bool SendListData(std::vector<unsigned long long> &list_data) {
+    for (auto &x : list_data)
+        cout << x << endl;
     list_data.clear();
 }
 
@@ -172,8 +174,6 @@ void AcquireSpectrum(int time) {
             if (chdpp.LibUsb_SendCommand(XMTPT_SEND_LIST_MODE_DATA)) {    // request list
                 if (chdpp.LibUsb_ReceiveData()) {
                     bDisableMCA = true;
-//                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME[0] << endl;
-//                    cout << chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME.size() << endl;
                     SendListData(chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME);
                 }
             } else {
@@ -358,7 +358,7 @@ int main(int argc, char *argv[]) {
     _getch();
 
     while (1) {
-        int time = 1000;
+        int time = 500;
         system(CLEAR_TERM);
         cout << "Request status packet: 1" << endl;
 //        cout << "Request List-mode data: 2" << endl;

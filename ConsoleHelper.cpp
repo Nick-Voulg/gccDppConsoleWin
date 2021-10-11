@@ -267,8 +267,7 @@ void CConsoleHelper::ProcessListModeDataEx(Packet_In PIN, DppStateType DppState)
         }
         time_tag = time_tag_bottom + time_tag_top * 65536;
         DP5Proto.LISTDATA.AMPLITUDEANDTIME.push_back(time_tag * 100000 + amplitude);
-//        DP5Proto.LISTDATA.AMPLITUDEANDTIME.push_back(time_tag);
-//        std::cout << DP5Proto.LISTDATA.time_tag_top << std::endl;
+//        std::cout << time_tag << std::endl;
 
     }
 
