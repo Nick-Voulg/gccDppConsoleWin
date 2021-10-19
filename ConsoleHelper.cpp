@@ -254,7 +254,7 @@ void CConsoleHelper::ProcessListModeDataEx(Packet_In PIN, DppStateType DppState)
         bool D31 = PIN.DATA[record * 4] & (1<<7);
         bool D30 = PIN.DATA[record * 4] & (1<<6);
         bool buffer_select = D30;
-//        0~16383
+//        amplitude: 0~16383
         unsigned int amplitude = 0;
         unsigned int time_tag_bottom = 0;
         if (D31 == false) {

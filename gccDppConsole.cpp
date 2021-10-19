@@ -195,7 +195,7 @@ void AcquireSpectrum(int time) {
         chdpp.LibUsb_SendCommand(XMTPT_ENABLE_MCA_MCS);
         Sleep(1000);
         while (true) {
-            if (sig_received == true) {
+            if (sig_received) {
                 cout << "sig received" << endl;
                 InitializeSignalHandler();
                 break;
