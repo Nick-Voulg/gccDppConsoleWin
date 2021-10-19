@@ -2,6 +2,10 @@
 
 // gccDppConsole.cpp : Defines the entry point for the console application.
 #include <iostream>
+#include <signal.h>
+//#include <unistd.h>
+//#include <stdlib.h>
+//#include <errno.h>
 
 using namespace std;
 
@@ -19,13 +23,35 @@ using namespace std;
 
 #include "ConsoleHelper.h"
 #include "stringex.h"
-#include <unistd.h>
+//#include <unistd.h>
 
 CConsoleHelper chdpp;                    // DPP communications functions
 bool bRunSpectrumTest = false;            // run spectrum test
 bool bRunConfigurationTest = false;        // run configuration test
 bool bHaveStatusResponse = false;        // have status response
 bool bHaveConfigFromHW = false;            // have configuration from hardware
+
+static bool sig_received = false;
+
+/* シグナルハンドラ */
+void SignalHandler(int sig) {
+    if (sig == SIGINT) {
+        cout << "received SIGINT" << endl;
+    } else if (sig == SIGTERM) {
+        cout << "received SIGTERM" << endl;
+    }
+    sig_received = true;
+}
+
+void InitializeSignalHandler () {
+    sig_received = false;
+    if (signal(SIGINT, SignalHandler) == SIG_ERR) {
+        cout << "can't catch SIGINT" << endl;
+    }
+    if (signal(SIGTERM, SignalHandler) == SIG_ERR) {
+        cout << "can't catch SIGTERM" << endl;
+    }
+}
 
 // connect to default dpp
 //		CConsoleHelper::LibUsb_Connect_Default_DPP	// LibUsb connect to default DPP
@@ -154,8 +180,7 @@ bool SendListData(std::vector<unsigned long long> &list_data) {
 //		CConsoleHelper::ConsoleGraph()	(low resolution display)		// graph data on console with status
 //		CConsoleHelper::LibUsb_SendCommand(XMTPT_DISABLE_MCA_MCS)		// disable mca after acquisition
 void AcquireSpectrum(int time) {
-    int MaxMCA = 11;
-    bool bDisableMCA;
+    bool bDisableMCA = false;
 
     //bRunSpectrumTest = false;		// disable test
     if (bRunSpectrumTest) {
@@ -170,6 +195,11 @@ void AcquireSpectrum(int time) {
         chdpp.LibUsb_SendCommand(XMTPT_ENABLE_MCA_MCS);
         Sleep(1000);
         while (true) {
+            if (sig_received == true) {
+                cout << "sig received" << endl;
+                InitializeSignalHandler();
+                break;
+            }
             system(CLEAR_TERM);
             if (chdpp.LibUsb_SendCommand(XMTPT_SEND_LIST_MODE_DATA)) {    // request list
                 if (chdpp.LibUsb_ReceiveData()) {
@@ -183,8 +213,8 @@ void AcquireSpectrum(int time) {
             Sleep(time);
         }
         if (bDisableMCA) {
-            //system("Pause");
-            //cout << "\t\tSpectrum acquisition with status done. Disabling MCA." << endl;
+            system("Pause");
+            cout << "\t\tSpectrum acquisition with status done. Disabling MCA." << endl;
             chdpp.LibUsb_SendCommand(XMTPT_DISABLE_MCA_MCS);
             Sleep(1000);
         }
@@ -356,7 +386,7 @@ int main(int argc, char *argv[]) {
     SendPresetAcquisitionTime("PRET=OFF;");
     cout << "Press the Enter key to continue . . .";
     _getch();
-
+    InitializeSignalHandler();
     while (1) {
         int time = 500;
         system(CLEAR_TERM);

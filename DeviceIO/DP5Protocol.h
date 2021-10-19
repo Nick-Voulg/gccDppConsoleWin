@@ -310,7 +310,7 @@ struct List {
     short CHANNELS;
     short RECORDS;
     std::vector<unsigned long long> AMPLITUDEANDTIME;
-//    unsigned long long time_tag_top = 0;
+    bool FIFOFULL;
 };
 
 class CDP5Protocol {

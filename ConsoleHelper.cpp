@@ -232,6 +232,12 @@ void CConsoleHelper::ProcessSpectrumEx(Packet_In PIN, DppStateType DppState) {
 
 //processes list mode
 void CConsoleHelper::ProcessListModeDataEx(Packet_In PIN, DppStateType DppState) {
+    if (PIN.PID2 == 0x0A) {
+        DP5Proto.LISTDATA.FIFOFULL = false;
+    } else if (PIN.PID2 == 0x0B) {
+        DP5Proto.LISTDATA.FIFOFULL = true;
+    }
+
     DP5Proto.LISTDATA.CHANNELS = 1024;
 //  LEN: 0~4096 byte : 0~1024 records (32 bit)
     if (DP5Proto.LISTDATA.CHANNELS == 1024) {
