@@ -26,7 +26,7 @@ using namespace std;
 #include "ConsoleHelper.h"
 #include "stringex.h"
 //#include <unistd.h>
-#define SHARE_BUF_SIZE 16392 // byte 2049 * sizeof(unsigned long long)
+#define SHARE_BUF_SIZE 16400 // byte 2050 * sizeof(unsigned long long)
 TCHAR szName[]=TEXT("GlobalMyFileMappingObject");
 TCHAR mtName[]=TEXT("Mutex");
 
@@ -58,7 +58,7 @@ void InitializeSignalHandler () {
     }
 }
 
-bool InitializeShareMemory(HANDLE &hMapFile, LPCTSTR &pBuf, HANDLE &ghMutex) {
+bool InitializeShareMemory(HANDLE &hMapFile, unsigned long long* &pBuf, HANDLE &ghMutex) {
     hMapFile = CreateFileMapping(
             INVALID_HANDLE_VALUE,    // use paging file
             NULL,                    // default security
@@ -72,7 +72,7 @@ bool InitializeShareMemory(HANDLE &hMapFile, LPCTSTR &pBuf, HANDLE &ghMutex) {
         return false;
     }
 
-    pBuf = (LPTSTR) MapViewOfFile(hMapFile,   // handle to map object
+    pBuf = (unsigned long long*) MapViewOfFile(hMapFile,   // handle to map object
                                   FILE_MAP_ALL_ACCESS, // read/write permission
                                   0,
                                   0,
@@ -206,14 +206,15 @@ void SendPresetAcquisitionTime(string strPRET) {
     }
 }
 
-bool SendListData(HANDLE &hMapFile, LPCTSTR &pBuf, HANDLE &ghMutex, unsigned long long (&list_data)[MAX_LIST_BUFFER_RECORDS], short records) {
+bool SendListData(HANDLE &hMapFile, unsigned long long* &pBuf, HANDLE &ghMutex, unsigned long long (&list_data)[MAX_LIST_BUFFER_RECORDS], short records) {
+//    system(CLEAR_TERM);
 //    for (int i = 0; i < records; i++) {
 //        cout << list_data[i] << endl;
 //    }
 // mutex lock
     WaitForSingleObject(ghMutex, INFINITE);
 // write shared memory
-    CopyMemory((PVOID)pBuf, list_data, sizeof(unsigned long long) * records);
+    CopyMemory(pBuf, list_data, sizeof(unsigned long long) * records);
 // mutex unlock
     ReleaseMutex(ghMutex);
 }
@@ -226,7 +227,7 @@ bool SendListData(HANDLE &hMapFile, LPCTSTR &pBuf, HANDLE &ghMutex, unsigned lon
 //		CConsoleHelper::LibUsb_ReceiveData()							// process spectrum and data
 //		CConsoleHelper::ConsoleGraph()	(low resolution display)		// graph data on console with status
 //		CConsoleHelper::LibUsb_SendCommand(XMTPT_DISABLE_MCA_MCS)		// disable mca after acquisition
-void AcquireSpectrum(HANDLE &hMapFile, LPCTSTR &pBuf, HANDLE &ghMutex, int time) {
+void AcquireSpectrum(HANDLE &hMapFile, unsigned long long* &pBuf, HANDLE &ghMutex, int time) {
     bool bDisableMCA = false;
 
     //bRunSpectrumTest = false;		// disable test
@@ -438,7 +439,7 @@ int main(int argc, char *argv[]) {
     int time = 500;
     InitializeSignalHandler();
     HANDLE hMapFile;
-    LPCTSTR pBuf;
+    unsigned long long *pBuf;
     HANDLE ghMutex;
     if (InitializeShareMemory(hMapFile, pBuf, ghMutex)) {
         while (1) {
@@ -462,12 +463,12 @@ int main(int argc, char *argv[]) {
                 GetDppStatus();
                 cout << "Press the Enter key to continue . . .";
                 _getch();
-            } else if (command == 2) {
-                break;
-            } else if (command == 3) {
-                break;
-            } else if (command == 4) {
-                break;
+//            } else if (command == 2) {
+//                break;
+//            } else if (command == 3) {
+//                break;
+//            } else if (command == 4) {
+//                break;
             } else if (command == 5) {
                 cout << "\t\tClear spectrum" << endl;
                 if (chdpp.LibUsb_SendCommand(XMTPT_CLEAR_SPECTRUM_BUFFER_A)) {

@@ -232,6 +232,7 @@ void CConsoleHelper::ProcessSpectrumEx(Packet_In PIN, DppStateType DppState) {
 
 //processes list mode
 void CConsoleHelper::ProcessListModeDataEx(Packet_In PIN, DppStateType DppState) {
+    static unsigned long long data_number = 0;
     if (PIN.PID2 == 0x0A) {
         DP5Proto.LISTDATA.isFIFOFULL = false;
     } else if (PIN.PID2 == 0x0B) {
@@ -242,7 +243,8 @@ void CConsoleHelper::ProcessListModeDataEx(Packet_In PIN, DppStateType DppState)
 //  LEN: 0~4096 byte : 0~1024 records (32 bit)
     DP5Proto.LISTDATA.RECORDS = PIN.LEN / 4;
     DP5Proto.LISTDATA.AMPLITUDEANDTIME_RECORDS = DP5Proto.LISTDATA.RECORDS * 2 + 1;
-    DP5Proto.LISTDATA.AMPLITUDEANDTIME[0] = DP5Proto.LISTDATA.RECORDS;
+    DP5Proto.LISTDATA.AMPLITUDEANDTIME[0] = data_number;
+    DP5Proto.LISTDATA.AMPLITUDEANDTIME[1] = DP5Proto.LISTDATA.RECORDS;
     unsigned long long time_tag_top = 0;
     unsigned long long time_tag = 0;
     for (int record = 0; record < DP5Proto.LISTDATA.RECORDS; record++) {
@@ -272,9 +274,10 @@ void CConsoleHelper::ProcessListModeDataEx(Packet_In PIN, DppStateType DppState)
             continue;
         }
         time_tag = time_tag_bottom + time_tag_top * 65536;
-        DP5Proto.LISTDATA.AMPLITUDEANDTIME[record * 2 + 1 + 0] = amplitude;
-        DP5Proto.LISTDATA.AMPLITUDEANDTIME[record * 2 + 1 + 1] = time_tag;
+        DP5Proto.LISTDATA.AMPLITUDEANDTIME[record * 2 + 2 + 0] = amplitude;
+        DP5Proto.LISTDATA.AMPLITUDEANDTIME[record * 2 + 2 + 1] = time_tag;
     }
+    data_number++;
 
 }
 
