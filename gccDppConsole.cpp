@@ -28,6 +28,7 @@ using namespace std;
 //#include <unistd.h>
 #define SHARE_BUF_SIZE 16392 // byte 2049 * sizeof(unsigned long long)
 TCHAR szName[]=TEXT("GlobalMyFileMappingObject");
+TCHAR mtName[]=TEXT("Mutex");
 
 CConsoleHelper chdpp;                    // DPP communications functions
 bool bRunSpectrumTest = false;            // run spectrum test
@@ -57,7 +58,7 @@ void InitializeSignalHandler () {
     }
 }
 
-bool InitializeShareMemory(HANDLE &hMapFile, LPCTSTR &pBuf) {
+bool InitializeShareMemory(HANDLE &hMapFile, LPCTSTR &pBuf, HANDLE &ghMutex) {
     hMapFile = CreateFileMapping(
             INVALID_HANDLE_VALUE,    // use paging file
             NULL,                    // default security
@@ -65,21 +66,18 @@ bool InitializeShareMemory(HANDLE &hMapFile, LPCTSTR &pBuf) {
             0,                       // maximum object size (high-order DWORD)
             SHARE_BUF_SIZE,                // maximum object size (low-order DWORD)
             szName);                 // name of mapping object
-
-    if (hMapFile == NULL)
-    {
+    if (hMapFile == NULL) {
         _tprintf(TEXT("Could not create file mapping object (%d).\n"),
                  GetLastError());
         return false;
     }
+
     pBuf = (LPTSTR) MapViewOfFile(hMapFile,   // handle to map object
                                   FILE_MAP_ALL_ACCESS, // read/write permission
                                   0,
                                   0,
                                   SHARE_BUF_SIZE);
-
-    if (pBuf == NULL)
-    {
+    if (pBuf == NULL) {
         _tprintf(TEXT("Could not map view of file (%d).\n"),
                  GetLastError());
 
@@ -87,6 +85,13 @@ bool InitializeShareMemory(HANDLE &hMapFile, LPCTSTR &pBuf) {
 
         return false;
     }
+
+    ghMutex = CreateMutex(NULL, FALSE, mtName);
+    if (ghMutex == NULL) {
+        printf("CreateMutex error: %d\n", GetLastError());
+        return false;
+    }
+
     return true;
 }
 // connect to default dpp
@@ -201,11 +206,16 @@ void SendPresetAcquisitionTime(string strPRET) {
     }
 }
 
-bool SendListData(HANDLE &hMapFile, LPCTSTR &pBuf, unsigned long long (&list_data)[MAX_LIST_BUFFER_RECORDS], short records) {
+bool SendListData(HANDLE &hMapFile, LPCTSTR &pBuf, HANDLE &ghMutex, unsigned long long (&list_data)[MAX_LIST_BUFFER_RECORDS], short records) {
 //    for (int i = 0; i < records; i++) {
 //        cout << list_data[i] << endl;
 //    }
+// mutex lock
+    WaitForSingleObject(ghMutex, INFINITE);
+// write shared memory
     CopyMemory((PVOID)pBuf, list_data, sizeof(unsigned long long) * records);
+// mutex unlock
+    ReleaseMutex(ghMutex);
 }
 
 // Acquire Spectrum
@@ -216,7 +226,7 @@ bool SendListData(HANDLE &hMapFile, LPCTSTR &pBuf, unsigned long long (&list_dat
 //		CConsoleHelper::LibUsb_ReceiveData()							// process spectrum and data
 //		CConsoleHelper::ConsoleGraph()	(low resolution display)		// graph data on console with status
 //		CConsoleHelper::LibUsb_SendCommand(XMTPT_DISABLE_MCA_MCS)		// disable mca after acquisition
-void AcquireSpectrum(HANDLE &hMapFile, LPCTSTR &pBuf, int time) {
+void AcquireSpectrum(HANDLE &hMapFile, LPCTSTR &pBuf, HANDLE &ghMutex, int time) {
     bool bDisableMCA = false;
 
     //bRunSpectrumTest = false;		// disable test
@@ -241,7 +251,7 @@ void AcquireSpectrum(HANDLE &hMapFile, LPCTSTR &pBuf, int time) {
             if (chdpp.LibUsb_SendCommand(XMTPT_SEND_LIST_MODE_DATA)) {    // request list
                 if (chdpp.LibUsb_ReceiveData()) {
                     bDisableMCA = true;
-                    SendListData(hMapFile, pBuf, chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME, chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME_RECORDS);
+                    SendListData(hMapFile, pBuf, ghMutex, chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME, chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME_RECORDS);
                     if (chdpp.DP5Proto.LISTDATA.isFIFOFULL)
                         cout << "FIFOFULL" << endl;
                 }
@@ -429,7 +439,8 @@ int main(int argc, char *argv[]) {
     InitializeSignalHandler();
     HANDLE hMapFile;
     LPCTSTR pBuf;
-    if (InitializeShareMemory(hMapFile, pBuf)) {
+    HANDLE ghMutex;
+    if (InitializeShareMemory(hMapFile, pBuf, ghMutex)) {
         while (1) {
             system(CLEAR_TERM);
             cout << "Request status packet: 1" << endl;
@@ -486,11 +497,12 @@ int main(int argc, char *argv[]) {
                 cout << "Press the Enter key to continue . . .";
                 _getch();
             } else if (command == 10) {
-                AcquireSpectrum(hMapFile, pBuf, time);
+                AcquireSpectrum(hMapFile, pBuf, ghMutex, time);
             } else {
                 break;
             }
         }
+        CloseHandle(ghMutex);
         UnmapViewOfFile(pBuf);
         CloseHandle(hMapFile);
     }
