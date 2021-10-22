@@ -13,6 +13,8 @@ using namespace std;
 #ifdef _WIN32
 #include <windows.h>
 #include <conio.h>
+#include <tchar.h>
+#pragma comment(lib, "user32.lib")
 #define CLEAR_TERM "cls"
 #else
 
@@ -24,6 +26,8 @@ using namespace std;
 #include "ConsoleHelper.h"
 #include "stringex.h"
 //#include <unistd.h>
+#define SHARE_BUF_SIZE 16392 // byte 2049 * sizeof(unsigned long long)
+TCHAR szName[]=TEXT("GlobalMyFileMappingObject");
 
 CConsoleHelper chdpp;                    // DPP communications functions
 bool bRunSpectrumTest = false;            // run spectrum test
@@ -53,6 +57,38 @@ void InitializeSignalHandler () {
     }
 }
 
+bool InitializeShareMemory(HANDLE &hMapFile, LPCTSTR &pBuf) {
+    hMapFile = CreateFileMapping(
+            INVALID_HANDLE_VALUE,    // use paging file
+            NULL,                    // default security
+            PAGE_READWRITE,          // read/write access
+            0,                       // maximum object size (high-order DWORD)
+            SHARE_BUF_SIZE,                // maximum object size (low-order DWORD)
+            szName);                 // name of mapping object
+
+    if (hMapFile == NULL)
+    {
+        _tprintf(TEXT("Could not create file mapping object (%d).\n"),
+                 GetLastError());
+        return false;
+    }
+    pBuf = (LPTSTR) MapViewOfFile(hMapFile,   // handle to map object
+                                  FILE_MAP_ALL_ACCESS, // read/write permission
+                                  0,
+                                  0,
+                                  SHARE_BUF_SIZE);
+
+    if (pBuf == NULL)
+    {
+        _tprintf(TEXT("Could not map view of file (%d).\n"),
+                 GetLastError());
+
+        CloseHandle(hMapFile);
+
+        return false;
+    }
+    return true;
+}
 // connect to default dpp
 //		CConsoleHelper::LibUsb_Connect_Default_DPP	// LibUsb connect to default DPP
 void ConnectToDefaultDPP() {
@@ -165,10 +201,11 @@ void SendPresetAcquisitionTime(string strPRET) {
     }
 }
 
-bool SendListData(std::vector<unsigned long long> &list_data) {
-    for (auto &x : list_data)
-        cout << x << endl;
-    list_data.clear();
+bool SendListData(HANDLE &hMapFile, LPCTSTR &pBuf, unsigned long long (&list_data)[MAX_LIST_BUFFER_RECORDS], short records) {
+//    for (int i = 0; i < records; i++) {
+//        cout << list_data[i] << endl;
+//    }
+    CopyMemory((PVOID)pBuf, list_data, sizeof(unsigned long long) * records);
 }
 
 // Acquire Spectrum
@@ -179,7 +216,7 @@ bool SendListData(std::vector<unsigned long long> &list_data) {
 //		CConsoleHelper::LibUsb_ReceiveData()							// process spectrum and data
 //		CConsoleHelper::ConsoleGraph()	(low resolution display)		// graph data on console with status
 //		CConsoleHelper::LibUsb_SendCommand(XMTPT_DISABLE_MCA_MCS)		// disable mca after acquisition
-void AcquireSpectrum(int time) {
+void AcquireSpectrum(HANDLE &hMapFile, LPCTSTR &pBuf, int time) {
     bool bDisableMCA = false;
 
     //bRunSpectrumTest = false;		// disable test
@@ -194,17 +231,19 @@ void AcquireSpectrum(int time) {
         cout << "\t\tEnabling MCA for spectrum data acquisition with status ." << endl;
         chdpp.LibUsb_SendCommand(XMTPT_ENABLE_MCA_MCS);
         Sleep(1000);
+        system(CLEAR_TERM);
         while (true) {
             if (sig_received) {
                 cout << "sig received" << endl;
                 InitializeSignalHandler();
                 break;
             }
-            system(CLEAR_TERM);
             if (chdpp.LibUsb_SendCommand(XMTPT_SEND_LIST_MODE_DATA)) {    // request list
                 if (chdpp.LibUsb_ReceiveData()) {
                     bDisableMCA = true;
-                    SendListData(chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME);
+                    SendListData(hMapFile, pBuf, chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME, chdpp.DP5Proto.LISTDATA.AMPLITUDEANDTIME_RECORDS);
+                    if (chdpp.DP5Proto.LISTDATA.isFIFOFULL)
+                        cout << "FIFOFULL" << endl;
                 }
             } else {
                 cout << "\t\tProblem acquiring spectrum." << endl;
@@ -386,70 +425,75 @@ int main(int argc, char *argv[]) {
     SendPresetAcquisitionTime("PRET=OFF;");
     cout << "Press the Enter key to continue . . .";
     _getch();
+    int time = 500;
     InitializeSignalHandler();
-    while (1) {
-        int time = 500;
-        system(CLEAR_TERM);
-        cout << "Request status packet: 1" << endl;
+    HANDLE hMapFile;
+    LPCTSTR pBuf;
+    if (InitializeShareMemory(hMapFile, pBuf)) {
+        while (1) {
+            system(CLEAR_TERM);
+            cout << "Request status packet: 1" << endl;
 //        cout << "Request List-mode data: 2" << endl;
 //        cout << "Text configuration to DP5: 3" << endl;
 //        cout << "Text configuration Readback from DP5: 4" << endl;
-        cout << "Clear Spectrum Buffer: 5" << endl;
-        cout << "Enable MCA/MCS: 6" << endl;
-        cout << "Disable MCA/MCS: 7" << endl;
-        cout << "Clear/Sync List-mode timer: 8" << endl;
-        cout << "Set request List-mode call interval time (milli sec): 9" << " now: " << time << endl;
-        cout << "Start request List-mode call loop: 10" << endl;
-        cout << "End: 0" << endl;
-        int command = 0;
-        cin >> command;
-        if (command == 0) {
-            break;
-        } else if (command == 1) {
-            GetDppStatus();
-            cout << "Press the Enter key to continue . . .";
-            _getch();
-        } else if (command == 2) {
-            break;
-        } else if (command == 3) {
-            break;
-        } else if (command == 4) {
-            break;
-        } else if (command == 5) {
-            cout << "\t\tClear spectrum" << endl;
-            if (chdpp.LibUsb_SendCommand(XMTPT_CLEAR_SPECTRUM_BUFFER_A)) {
-                chdpp.LibUsb_ReceiveData();
+            cout << "Clear Spectrum Buffer: 5" << endl;
+            cout << "Enable MCA/MCS: 6" << endl;
+            cout << "Disable MCA/MCS: 7" << endl;
+            cout << "Clear/Sync List-mode timer: 8" << endl;
+            cout << "Set request List-mode call interval time (milli sec): 9" << " now: " << time << endl;
+            cout << "Start request List-mode call loop: 10" << endl;
+            cout << "End: 0" << endl;
+            int command = 0;
+            cin >> command;
+            if (command == 0) {
+                break;
+            } else if (command == 1) {
+                GetDppStatus();
+                cout << "Press the Enter key to continue . . .";
+                _getch();
+            } else if (command == 2) {
+                break;
+            } else if (command == 3) {
+                break;
+            } else if (command == 4) {
+                break;
+            } else if (command == 5) {
+                cout << "\t\tClear spectrum" << endl;
+                if (chdpp.LibUsb_SendCommand(XMTPT_CLEAR_SPECTRUM_BUFFER_A)) {
+                    chdpp.LibUsb_ReceiveData();
+                }
+                cout << "Press the Enter key to continue . . .";
+                _getch();
+            } else if (command == 6) {
+                cout << "\t\tEnabling MCA for spectrum data acquisition with status ." << endl;
+                chdpp.LibUsb_SendCommand(XMTPT_ENABLE_MCA_MCS);
+                cout << "Press the Enter key to continue . . .";
+                _getch();
+            } else if (command == 7) {
+                cout << "\t\tDisabling MCA for spectrum data/status clear." << endl;
+                chdpp.LibUsb_SendCommand(XMTPT_DISABLE_MCA_MCS);
+                cout << "Press the Enter key to continue . . .";
+                _getch();
+            } else if (command == 8) {
+                cout << "\t\tClear list mode timer" << endl;
+                if (chdpp.LibUsb_SendCommand(XMTPT_CLEAR_LIST_MODE_TIMER)) {
+                    chdpp.LibUsb_ReceiveData();
+                }
+                cout << "Press the Enter key to continue . . .";
+                _getch();
+            } else if (command == 9) {
+                cin >> time;
+                cout << "Press the Enter key to continue . . .";
+                _getch();
+            } else if (command == 10) {
+                AcquireSpectrum(hMapFile, pBuf, time);
+            } else {
+                break;
             }
-            cout << "Press the Enter key to continue . . .";
-            _getch();
-        } else if (command == 6) {
-            cout << "\t\tEnabling MCA for spectrum data acquisition with status ." << endl;
-            chdpp.LibUsb_SendCommand(XMTPT_ENABLE_MCA_MCS);
-            cout << "Press the Enter key to continue . . .";
-            _getch();
-        } else if (command == 7) {
-            cout << "\t\tDisabling MCA for spectrum data/status clear." << endl;
-            chdpp.LibUsb_SendCommand(XMTPT_DISABLE_MCA_MCS);
-            cout << "Press the Enter key to continue . . .";
-            _getch();
-        } else if (command == 8) {
-            cout << "\t\tClear list mode timer" << endl;
-            if (chdpp.LibUsb_SendCommand(XMTPT_CLEAR_LIST_MODE_TIMER)) {
-                chdpp.LibUsb_ReceiveData();
-            }
-            cout << "Press the Enter key to continue . . .";
-            _getch();
-        } else if (command == 9) {
-            cin >> time;
-            cout << "Press the Enter key to continue . . .";
-            _getch();
-        } else if (command == 10) {
-            AcquireSpectrum(time);
-        } else {
-            break;
         }
+        UnmapViewOfFile(pBuf);
+        CloseHandle(hMapFile);
     }
-
 
     SaveSpectrumFile();
     cout << "Press the Enter key to continue . . .";
