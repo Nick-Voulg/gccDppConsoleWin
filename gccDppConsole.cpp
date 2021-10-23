@@ -59,7 +59,7 @@ void InitializeSignalHandler () {
     }
 }
 
-bool InitializeShareMemory(HANDLE &hMapFile, unsigned long long* &pBuf, HANDLE &ghMutex, HANDLE &hEvent) {
+bool InitializeSharedMemory(HANDLE &hMapFile, unsigned long long* &pBuf, HANDLE &ghMutex, HANDLE &hEvent) {
     hMapFile = CreateFileMapping(
             INVALID_HANDLE_VALUE,    // use paging file
             NULL,                    // default security
@@ -451,7 +451,7 @@ int main(int argc, char *argv[]) {
     unsigned long long *pBuf;
     HANDLE ghMutex;
     HANDLE hEvent;
-    if (InitializeShareMemory(hMapFile, pBuf, ghMutex, hEvent)) {
+    if (InitializeSharedMemory(hMapFile, pBuf, ghMutex, hEvent)) {
         while (1) {
             system(CLEAR_TERM);
             cout << "Request status packet: 1" << endl;
