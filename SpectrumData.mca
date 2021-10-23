@@ -5,10 +5,10 @@ GAIN - 2
 THRESHOLD - 0
 LIVE_MODE - 0
 PRESET_TIME - 
-LIVE_TIME - 9.008000
-REAL_TIME - 9.008000
+LIVE_TIME - 0.000000
+REAL_TIME - 0.000000
 START_TIME - 
-SERIAL_NUMBER - 110
+SERIAL_NUMBER - 30589
 <<DATA>>
 0
 0
@@ -1038,12 +1038,13 @@ SERIAL_NUMBER - 110
 <<DP5 CONFIGURATION>>
 <<DP5 CONFIGURATION END>>
 <<DPP STATUS>>
-Device Type: MCA8000D
-Serial Number: 110
-Firmware: 6.09  Build:  0
-FPGA: 1.08
+Device Type: DP5
+Serial Number: 30589
+Firmware: 6.09  Build:  4
+FPGA: 6.15
+Fast Count: 0
 Slow Count: 0
 GP Count: 0
-Real Time: 9
-Live Time: 9
+Accumulation Time: 0
+Real Time: 0
 <<DPP STATUS END>>

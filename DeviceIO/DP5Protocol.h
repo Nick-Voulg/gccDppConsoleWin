@@ -299,7 +299,7 @@ struct Packet_Out {
 #define MAX_BUFFER_DATA        8192
 #define MAX_SCOPE_DATA        2048
 #define USB_DiagDataDelayMS 2500
-#define MAX_LIST_BUFFER_RECORDS 2050 // 1024 (input) * 2 + 2
+#define MAX_LIST_BUFFER_RECORDS 2049 // 1024 (input) * 2 + 1
 
 struct Spec {
     long DATA[MAX_BUFFER_DATA];   // this keeps total of static data under 64K VB limit
@@ -309,10 +309,10 @@ struct Spec {
 struct List {
     short CHANNELS;
     short RECORDS;
-//  RECORDS * 2 + 2
-    short AMPLITUDEANDTIME_RECORDS;
-//  data structure:  [data_number, RECORDS, amplitude, timetag, amplitude, timetag, ...]
-    unsigned long long AMPLITUDEANDTIME[MAX_LIST_BUFFER_RECORDS];
+//  max: RECORDS * 2 + 1
+    short AMPLITUDE_RECORDS;
+//  data structure:  [RECORDS, amplitude, timetag, amplitude, timetag, ...]
+    unsigned long long AMPLITUDE[MAX_LIST_BUFFER_RECORDS];
     bool isFIFOFULL;
 };
 
