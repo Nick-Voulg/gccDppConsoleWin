@@ -251,6 +251,8 @@ void AcquireSpectrum(HANDLE &hMapFile, unsigned long long* &pBuf, HANDLE &ghMute
         cout << "\t\tEnabling MCA for spectrum data acquisition with status ." << endl;
         chdpp.LibUsb_SendCommand(XMTPT_ENABLE_MCA_MCS);
         Sleep(1000);
+        cout << "\t\tClear list mode timer" << endl;
+        chdpp.LibUsb_SendCommand(XMTPT_CLEAR_LIST_MODE_TIMER);
         system(CLEAR_TERM);
         while (true) {
             if (sig_received) {
