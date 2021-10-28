@@ -5,8 +5,8 @@ GAIN - 2
 THRESHOLD - 0
 LIVE_MODE - 0
 PRESET_TIME - 
-LIVE_TIME - 0.000000
-REAL_TIME - 0.000000
+LIVE_TIME - 19.473000
+REAL_TIME - 19.473000
 START_TIME - 
 SERIAL_NUMBER - 30589
 <<DATA>>
@@ -1045,6 +1045,6 @@ FPGA: 6.15
 Fast Count: 0
 Slow Count: 0
 GP Count: 0
-Accumulation Time: 0
-Real Time: 0
+Accumulation Time: 19
+Real Time: 19
 <<DPP STATUS END>>

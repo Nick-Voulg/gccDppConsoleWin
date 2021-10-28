@@ -26,7 +26,7 @@ using namespace std;
 #include "ConsoleHelper.h"
 #include "stringex.h"
 //#include <unistd.h>
-#define SHARE_BUF_SIZE 16392 // byte 2049 * sizeof(unsigned long long) (16392)
+#define SHARE_BUF_SIZE 40000 // byte 2049 * sizeof(unsigned long long) (16392)
 TCHAR szName[]=TEXT("GlobalMyFileMappingObject");
 TCHAR mtName[]=TEXT("Mutex");
 TCHAR evName[]=TEXT("Event");
@@ -471,6 +471,14 @@ int main(int argc, char *argv[]) {
         int command = 0;
         cin >> command;
         if (command == 0) {
+            if (hEvent != NULL)
+                CloseHandle(hEvent);
+            if (ghMutex != NULL)
+                CloseHandle(ghMutex);
+            if (pBuf != NULL)
+                UnmapViewOfFile(pBuf);
+            if (hMapFile != NULL)
+                CloseHandle(hMapFile);
             break;
         } else if (command == 1) {
             GetDppStatus();
@@ -513,16 +521,16 @@ int main(int argc, char *argv[]) {
         } else if (command == 10) {
             AcquireSpectrum(hMapFile, pBuf, ghMutex, hEvent, time);
         } else {
+            if (hEvent != NULL)
+                CloseHandle(hEvent);
+            if (ghMutex != NULL)
+                CloseHandle(ghMutex);
+            if (pBuf != NULL)
+                UnmapViewOfFile(pBuf);
+            if (hMapFile != NULL)
+                CloseHandle(hMapFile);
             break;
         }
-        if (hEvent != NULL)
-            CloseHandle(hEvent);
-        if (ghMutex != NULL)
-            CloseHandle(ghMutex);
-        if (pBuf != NULL)
-            UnmapViewOfFile(pBuf);
-        if (hMapFile != NULL)
-            CloseHandle(hMapFile);
     }
 
     SaveSpectrumFile();
