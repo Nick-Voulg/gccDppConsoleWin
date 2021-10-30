@@ -268,12 +268,14 @@ void AcquireSpectrum(HANDLE &hMapFile, unsigned long long* &pBuf, HANDLE &ghMute
                         cout << "FIFOFULL" << endl;
                 }
             } else {
+                SetEvent(hEvent);
                 cout << "\t\tProblem acquiring spectrum." << endl;
                 break;
             }
             Sleep(time);
         }
         if (bDisableMCA) {
+            SetEvent(hEvent);
             system("Pause");
             cout << "\t\tSpectrum acquisition with status done. Disabling MCA." << endl;
             chdpp.LibUsb_SendCommand(XMTPT_DISABLE_MCA_MCS);
@@ -410,12 +412,6 @@ void SaveSpectrumFile() {
 
 int main(int argc, char *argv[]) {
     system(CLEAR_TERM);
-    InitializeSignalHandler();
-    HANDLE hMapFile = NULL;
-    unsigned long long *pBuf = NULL;
-    HANDLE ghMutex = NULL;
-    HANDLE hEvent = NULL;
-    bool isSharedMemoryUsefull = InitializeSharedMemory(hMapFile, pBuf, ghMutex, hEvent);
 
     ConnectToDefaultDPP();
     cout << "Press the Enter key to continue . . .";
@@ -454,7 +450,14 @@ int main(int argc, char *argv[]) {
     SendPresetAcquisitionTime("PRET=OFF;");
     cout << "Press the Enter key to continue . . .";
     _getch();
-    int time = 500;
+
+    InitializeSignalHandler();
+    HANDLE hMapFile = NULL;
+    unsigned long long *pBuf = NULL;
+    HANDLE ghMutex = NULL;
+    HANDLE hEvent = NULL;
+    bool isSharedMemoryUsefull = InitializeSharedMemory(hMapFile, pBuf, ghMutex, hEvent);
+    int time = 100;
     while (isSharedMemoryUsefull) {
         system(CLEAR_TERM);
         cout << "Request status packet: 1" << endl;
@@ -471,14 +474,6 @@ int main(int argc, char *argv[]) {
         int command = 0;
         cin >> command;
         if (command == 0) {
-            if (hEvent != NULL)
-                CloseHandle(hEvent);
-            if (ghMutex != NULL)
-                CloseHandle(ghMutex);
-            if (pBuf != NULL)
-                UnmapViewOfFile(pBuf);
-            if (hMapFile != NULL)
-                CloseHandle(hMapFile);
             break;
         } else if (command == 1) {
             GetDppStatus();
@@ -521,17 +516,21 @@ int main(int argc, char *argv[]) {
         } else if (command == 10) {
             AcquireSpectrum(hMapFile, pBuf, ghMutex, hEvent, time);
         } else {
-            if (hEvent != NULL)
-                CloseHandle(hEvent);
-            if (ghMutex != NULL)
-                CloseHandle(ghMutex);
-            if (pBuf != NULL)
-                UnmapViewOfFile(pBuf);
-            if (hMapFile != NULL)
-                CloseHandle(hMapFile);
             break;
         }
     }
+    if (hEvent != NULL) {
+        SetEvent(hEvent);
+        CloseHandle(hEvent);
+    }
+    if (ghMutex != NULL) {
+        ReleaseMutex(ghMutex);
+        CloseHandle(ghMutex);
+    }
+    if (pBuf != NULL)
+        UnmapViewOfFile(pBuf);
+    if (hMapFile != NULL)
+        CloseHandle(hMapFile);
 
     SaveSpectrumFile();
     cout << "Press the Enter key to continue . . .";
