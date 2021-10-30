@@ -520,11 +520,9 @@ int main(int argc, char *argv[]) {
         }
     }
     if (hEvent != NULL) {
-        SetEvent(hEvent);
         CloseHandle(hEvent);
     }
     if (ghMutex != NULL) {
-        ReleaseMutex(ghMutex);
         CloseHandle(ghMutex);
     }
     if (pBuf != NULL)
