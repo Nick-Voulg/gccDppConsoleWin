@@ -253,6 +253,10 @@ void AcquireSpectrum(HANDLE &hMapFile, unsigned long long* &pBuf, HANDLE &ghMute
         Sleep(1000);
         cout << "\t\tClear list mode timer" << endl;
         chdpp.LibUsb_SendCommand(XMTPT_CLEAR_LIST_MODE_TIMER);
+        Sleep(100);
+        cout << "\t\tClear spectrum" << endl;
+        chdpp.LibUsb_SendCommand(XMTPT_CLEAR_SPECTRUM_BUFFER_A);
+        Sleep(100);
         system(CLEAR_TERM);
         while (true) {
             if (sig_received) {
