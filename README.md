@@ -2,6 +2,15 @@
 ## Overview
 gccDppConsoleWin is the program of k-alpha method. This code gets amplifer and time list data from DP5.
 Then output data are gotten by sequentialBayes project. 
+## Send data format
+|   DATA[0]   |   DATA[1]   | DATA[2] |   DATA[3]   | DATA[4] | --- |     DATA[2n-1]     |         DATA[2n]          |
+|:-----------:|:-----------:|:-------:|:-----------:|:-------:|:---:|:------------------:|:-------------------------:|
+|  RECORDS | amplifier[0] | time[0] | amplifier[1] | time[1] | --- |   amplifier[n-1]    |         time[n-1]         |
+|      n      |    unsigned long long     |    unsigned long long     |      unsigned long long       |    unsigned long long     | --- | unsigned long long |    unsigned long long     |
+- size of data list is unsigned long long
+- RECORDS: size of data
+- amplifier: channel of detected (0 to 16383)
+- time: 16bit + 14bit count (100nS per count)
 ## Compile
 - gcc 4.8.3 32bit
 - C++ version 11
