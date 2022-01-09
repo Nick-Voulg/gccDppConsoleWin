@@ -243,7 +243,7 @@ void CConsoleHelper::ProcessListModeDataEx(Packet_In PIN, DppStateType DppState)
     DP5Proto.LISTDATA.RECORDS = PIN.LEN / 4;
     DP5Proto.LISTDATA.AMPLITUDE_RECORDS = DP5Proto.LISTDATA.RECORDS * 2 + 1;
     DP5Proto.LISTDATA.AMPLITUDE[0] = DP5Proto.LISTDATA.RECORDS;
-    unsigned long long time_tag_top = 0;
+    static unsigned long long time_tag_top = 0;
     unsigned long long time_tag = 0;
     for (int record = 0; record < DP5Proto.LISTDATA.RECORDS; record++) {
 //        Debug protocol
