@@ -213,7 +213,8 @@ void SendPresetAcquisitionTime(string strPRET) {
     }
 }
 
-bool SendListData(HANDLE &hMapFile, unsigned long long* &pBuf, HANDLE &ghMutex, HANDLE &hEvent, unsigned long long (&list_data)[MAX_LIST_BUFFER_RECORDS], short records) {
+bool SendListData(HANDLE &hMapFile, unsigned long long* &pBuf, HANDLE &ghMutex, HANDLE &hEvent,
+                  unsigned long long (&list_data)[MAX_LIST_BUFFER_RECORDS], short records) {
 //    system(CLEAR_TERM);
 //    for (int i = 0; i < records; i++) {
 //        cout << list_data[i] << endl;
