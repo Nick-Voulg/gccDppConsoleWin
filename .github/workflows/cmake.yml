@@ -18,10 +18,11 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Set up MinGW
-      uses: egor-tensin/setup-mingw@v2
-      with:
-        platform: x86
+    - name: add mingw32 to path
+      shell: bash
+      run: echo "C:\msys64\mingw32\bin" >> $GITHUB_PATH
+
+    - run: i686-w64-mingw32-gcc --version
           
     - uses: actions/checkout@v2
     
