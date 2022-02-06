@@ -1,3 +1,5 @@
 *.o
 .idea/
 .vscode/
+cmake-*
+*.exe

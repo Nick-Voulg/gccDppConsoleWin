@@ -14,7 +14,7 @@ using namespace std;
 #include <windows.h>
 #include <conio.h>
 #include <tchar.h>
-#pragma comment(lib, "user32.lib")
+//#pragma comment(lib, "user32.lib")
 #define CLEAR_TERM "cls"
 #else
 
